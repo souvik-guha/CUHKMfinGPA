@@ -479,6 +479,123 @@ test('reports a partly blank critique group instead of hiding it', async () => {
   });
 });
 
+function contrastRatio(a, b){
+  const lum = rgb => {
+    const m = String(rgb).match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)/);
+    if(!m) return null;
+    const lin = [m[1], m[2], m[3]].map(v => {
+      const c = Number(v) / 255;
+      return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2];
+  };
+  const L1 = lum(a), L2 = lum(b);
+  return (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
+}
+
+async function tabFace(page, id){
+  return page.evaluate(sel => {
+    const el = document.querySelector(sel);
+    const cs = getComputedStyle(el);
+    const mark = getComputedStyle(el, '::before');
+    const opaque = node => {
+      while(node){
+        const bg = getComputedStyle(node).backgroundColor;
+        const m = bg.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/);
+        if(m && (m[4]===undefined || Number(m[4]) > 0.95)) return bg;
+        node = node.parentElement;
+      }
+      return getComputedStyle(document.body).backgroundColor;
+    };
+    return {
+      checked: el.getAttribute('aria-checked'),
+      pressed: el.getAttribute('aria-pressed'),
+      role: el.getAttribute('role'),
+      group: document.getElementById('tabs').getAttribute('role'),
+      bg: opaque(el),
+      color: cs.color,
+      weight: Number(cs.fontWeight),
+      mark: mark.borderBottomWidth,
+      label: el.textContent
+    };
+  }, id);
+}
+
+test('selected course is visible without relying on color alone', async () => {
+  await withPage(async page => {
+    await page.setViewport({width:1280, height:800});
+    const ipa = await tabFace(page, '#tab-ipa');
+    const afm = await tabFace(page, '#tab-afm');
+    assert.equal(ipa.group, 'radiogroup');
+    assert.equal(ipa.role, 'radio');
+    assert.equal(afm.role, 'radio');
+    assert.equal(ipa.checked, 'true');
+    assert.equal(afm.checked, 'false');
+    assert.equal(ipa.pressed, null);
+    assert.notEqual(ipa.bg, afm.bg);
+    assert.equal(ipa.mark, '2px');
+    assert.equal(afm.mark, '0px');
+    assert.ok(ipa.weight >= 700);
+    assert.ok(afm.weight < 700);
+    assert.ok(contrastRatio(ipa.color, ipa.bg) >= 4.5, `selected contrast ${contrastRatio(ipa.color, ipa.bg)}`);
+    assert.ok(contrastRatio(afm.color, afm.bg) >= 4.5, `idle contrast ${contrastRatio(afm.color, afm.bg)}`);
+    assert.match(await page.evaluate(() => document.getElementById('h-course').textContent), /IPA 6112/);
+    const ipaRow = await page.evaluate(() => {
+      const row = [...document.querySelectorAll('#course-body tr')].find(tr => tr.textContent.includes('IPA 6112'));
+      const mark = getComputedStyle(row.querySelector('strong'), '::before');
+      return {active: row.classList.contains('active-course'), mark: mark.borderBottomWidth};
+    });
+    assert.equal(ipaRow.active, true);
+    assert.equal(ipaRow.mark, '2px');
+
+    await page.click('#tab-afm');
+    const picked = await tabFace(page, '#tab-afm');
+    const idle = await tabFace(page, '#tab-ipa');
+    assert.equal(picked.checked, 'true');
+    assert.equal(picked.mark, '2px');
+    assert.equal(idle.checked, 'false');
+    assert.equal(idle.mark, '0px');
+    assert.equal(await page.evaluate(() => window.__MSC_GPA__.getState().active), 'afm');
+    assert.match(await page.evaluate(() => document.getElementById('h-course').textContent), /AFM 6092/);
+    assert.ok(contrastRatio(picked.color, picked.bg) >= 4.5);
+
+    await page.focus('#tab-afm');
+    await page.keyboard.press('ArrowLeft');
+    const focus = await page.evaluate(() => {
+      const el = document.activeElement;
+      const cs = getComputedStyle(el);
+      return {id: el.id, checked: el.getAttribute('aria-checked'), outline: cs.outlineStyle, width: parseFloat(cs.outlineWidth)};
+    });
+    assert.equal(focus.id, 'tab-ipa');
+    assert.equal(focus.checked, 'true');
+    assert.notEqual(focus.outline, 'none');
+    assert.ok(focus.width >= 2);
+
+    for(const width of [375, 320]){
+      await page.setViewport({width, height:740, isMobile:true, hasTouch:true, deviceScaleFactor:1});
+      const box = await page.evaluate(() => {
+        const doc = document.documentElement;
+        const tabs = [...document.querySelectorAll('#tabs button')];
+        const selected = document.querySelector('#tabs button[aria-checked="true"]');
+        const mark = getComputedStyle(selected, '::before').borderBottomWidth;
+        return {
+          scroll: doc.scrollWidth,
+          client: doc.clientWidth,
+          left: Math.min(...tabs.map(t => t.getBoundingClientRect().left)),
+          right: Math.max(...tabs.map(t => t.getBoundingClientRect().right)),
+          mark,
+          both: tabs.length
+        };
+      });
+      assert.equal(box.both, 2);
+      assert.ok(box.scroll <= box.client + 1, `page overflow at ${width}: ${box.scroll} > ${box.client}`);
+      assert.ok(box.left >= -1, `tabs start at ${box.left}`);
+      assert.ok(box.right <= box.client + 1, `tabs end at ${box.right}`);
+      assert.equal(box.mark, '2px');
+    }
+  });
+});
+
 test('course tabs respond to arrows and a narrow screen stays inside the viewport', async () => {
   await withPage(async page => {
     await page.setViewport({width:1280, height:800});
