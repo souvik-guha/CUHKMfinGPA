@@ -1,0 +1,11 @@
+{
+  "name": "cuhk-mfin-gpa",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.17.0"
+  }
+}
