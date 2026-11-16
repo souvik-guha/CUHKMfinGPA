@@ -1,31 +1,24 @@
 # CUHK MSc Finance GPA Calculator
 
-A single-page calculator for CUHK MSc Finance course scores and unit-weighted GPA. It is static HTML, CSS, and JavaScript: open `index.html` in a browser. Nothing is sent to a server.
+A single-file calculator (`index.html`, about 33 KB, no dependencies, no network requests) for CUHK MSc Finance course scores, the final-exam score you need for a target grade, and unit-weighted GPA.
 
-**Live site:** https://souvik-guha.github.io/CUHKMfinGPA/
+**Live site:** https://souvik-guha.github.io/CUHKMfinGPA/ (GitHub Pages serves `main`).
 
-GitHub Pages publishes the `main` branch. A pull request does not change the live site or Pages settings.
+## How it calculates
 
-## Score and GPA
+- **Course score** = Σ (mark ÷ max × weight). A blank component is *unknown*, not zero: the page shows the range from scoring 0 on it to full credit. A typed `0` is a real zero.
+- **Needed final** = (cutoff − banked) ÷ final weight, and it **rounds up**, so the number shown always reaches the grade (69.5238% is shown as 69.53%).
+- **Displayed scores** never cross a cutoff by rounding (79.9965 shows as 79.99, not 80.00). Comparisons tolerate 1e-9 of floating-point noise only.
+- **Chart**: the grade for every possible final score. Step positions are computed from the cutoffs, not sampled, and sit at exactly the scores in the table. Shaded area = range while coursework is unentered.
+- **Overall GPA** = Σ(units × grade point) ÷ Σ units over included courses. Courses with no marks, blank percentages, 0 units and P/U/DI/PA/FA are left out. F counts as 0.0.
+- **Cutoffs**: A through C+ come from the IPA 6112 slide. C and below are estimates that continue the 10-point step; edit them in the page if a course publishes its own. The grade-point scale is the official 4.0 scale.
 
-Course score is the weighted sum of component marks. A blank component is unknown, so the course shows the range from scoring 0 on it to scoring full credit. A typed `0` is a real zero. `F` is 0 grade points and still counts.
-
-Overall GPA is the unit-weighted average of included grade points:
-
-`sum(course grade point × included units) / included units`
-
-Units of 0, blank percentage courses, and grades marked “Not in GPA” (P, U, DI, PA, FA) are left out. Letter grades use the official 4.0 scale (A 4.0 … D 1.0, F 0.0). Percentage cutoffs are separate: A through C+ come from the IPA 6112 slide, and C through D are labeled extrapolations, not official numbers.
-
-The final-exam chart can preview a score without saving it. Only the selected course’s final exam changes when you use its slider, the chart slider, or the chart. The effort curve is illustrative. It is off on every load.
-
-Marks are stored in `localStorage` under `cuhk-gpa-v4`. An older `cuhk-gpa-v3` save is read only when v4 is absent, and that v3 entry is left in place. The first time a save is read without `clearedDefaultMidterm`, an IPA midterm of exactly 16/30 is cleared once: that was the old placeholder, not a confirmed score. A later genuine 16 is kept. A value that cannot be parsed is not overwritten. Reset marks and Reset cutoffs are the explicit ways to restore defaults.
-
-The page loads IBM Plex and Space Grotesk from Google Fonts. Everything else stays in this file.
+Marks are kept in `localStorage` (`cuhk-gpa-v4`) and never leave the browser. A fresh visit is blank.
 
 ## Checks
 
 ```bash
-npm test
+npm ci && npm test
 ```
 
-The tests use the Chrome or Chromium already installed on the machine (`CHROME_PATH` or `CHROME_BIN` overrides the lookup). They cover grade boundaries, credit inclusion, blank versus zero, saved-state migration, exam control sync, keyboard access, and a narrow layout.
+Tests drive the page in Chrome or Chromium (`CHROME_PATH` or `CHROME_BIN` to point at it): cutoff boundaries and rounding, blank vs zero, needed-score rounding, GPA weighting, saved state, chart click/keys/step positions, cutoff validation, phone layout.
