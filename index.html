@@ -1,413 +1,1138 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>MSc Finance GPA Calculator</title>
-<meta name="description" content="Free, private GPA calculator for CUHK MSc Finance. Enter your marks to see your course grade, the exact final-exam score you need, and your unit-weighted GPA.">
-<meta property="og:title" content="CUHK MSc Finance GPA Calculator">
-<meta property="og:description" content="What do you need on the final? Runs in your browser; nothing is uploaded.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232563eb'/%3E%3Cpath d='M14 46h10V34h10V24h10V16h6' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<style>
-:root{--bg:#f8fafc;--panel:#fff;--ink:#0f172a;--mute:#546174;--line:#e2e8f0;--soft:#f1f5f9;--accent:#2563eb;--accent-soft:#eff6ff;
---good:#166534;--good-soft:#dcfce7;--warn:#92400e;--warn-soft:#fef3c7;--bad:#991b1b;--bad-soft:#fee2e2;--c-ipa:#0f766e;--c-afm:#2563eb;
---mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-@media (prefers-color-scheme:dark){:root{--bg:#0b1118;--panel:#131b25;--ink:#e6edf5;--mute:#9aa8ba;--line:#243040;--soft:#18222e;--accent:#7cb4ff;--accent-soft:#16283d;
---good:#6ee7a8;--good-soft:#12301f;--warn:#f4c15f;--warn-soft:#352a10;--bad:#f79a9a;--bad-soft:#3a1c1c;--c-ipa:#5eead4;--c-afm:#7cb4ff}}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#000000">
+  <title>MSc Finance GPA Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap">
+  <style>
+:root{
+  color-scheme:dark;
+  --bg:#000; --panel:rgba(255,255,255,.025); --fg:#eef2f7; --muted:#8e98a6; --line:rgba(255,255,255,.1);
+  --accent:#cfe0ff; --accent-soft:rgba(207,224,255,.09); --good:#9be3c2; --good-soft:rgba(155,227,194,.1);
+  --warn:#e8c98a; --warn-soft:rgba(232,201,138,.1); --bad:#f4a3a3; --bad-soft:rgba(244,163,163,.1);
+  --input:rgba(255,255,255,.035); --on-accent:#05070a; --ipa:#f2f7ff; --afm:#8fb4ff;
+  --f-display:"Instrument Serif",ui-serif,Georgia,"Times New Roman",serif;
+  --f-mono:"Martian Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans);padding:24px max(16px,env(safe-area-inset-right)) 56px max(16px,env(safe-area-inset-left))}
-.wrap{max-width:960px;margin:0 auto;display:grid;gap:20px}
-h1,h2{margin:0;line-height:1.2;letter-spacing:-.02em}
-h1{font-size:clamp(1.75rem,4vw,2.25rem)}h2{font-size:1.125rem}
-p{margin:0}.mute{color:var(--mute)}.small{font-size:.85rem}.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
-.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
-header{display:grid;gap:6px;max-width:62ch}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:grid;gap:16px;min-width:0}
-.split{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:32px}
-.stack{display:grid;gap:16px;align-content:start}
-@media (max-width:760px){.split{grid-template-columns:1fr;gap:24px}.card{padding:16px;border-radius:14px}}
-.seg{display:inline-flex;gap:4px;padding:4px;background:var(--soft);border:1px solid var(--line);border-radius:12px;justify-self:start;max-width:100%}
-.seg label{position:relative;padding:8px 18px;border-radius:9px;font-weight:600;color:var(--mute);cursor:pointer;min-height:40px;display:flex;align-items:center}
-.seg input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
-.seg label:has(:checked){background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgb(0 0 0/.12)}
-.seg label:has(:focus-visible){outline:2px solid var(--accent);outline-offset:2px}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.fields .wide{grid-column:1/-1}
-@media (max-width:480px){.fields{grid-template-columns:1fr}}
-.grp{grid-column:1/-1;font-size:.75rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-top:6px}
-.f{display:grid;gap:4px;font-size:.85rem;color:var(--mute);min-width:0}
-.f .row{display:flex;align-items:center;gap:8px}.f .u{font-size:.8rem;white-space:nowrap}
-.chip{font:600 .7rem var(--mono);color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:6px;margin-left:6px}
-input,select,button{font:inherit;color:inherit}
-input[type=number],input[type=text],select{width:100%;min-height:42px;padding:8px 10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;font-family:var(--mono);font-size:16px;color:var(--ink)}
-input[type=text]{font-family:var(--sans)}
-input::placeholder{color:var(--mute);opacity:1;font-family:var(--sans)}
-input[aria-invalid=true]{border-color:var(--bad)}
-.err{color:var(--bad);font-size:.78rem}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-button{min-height:40px;padding:8px 14px;border:1px solid var(--line);background:var(--panel);border-radius:10px;font-size:.9rem;font-weight:500;cursor:pointer}
-button:hover{border-color:var(--accent);color:var(--accent)}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.result{display:grid;gap:12px;align-content:start;background:var(--soft);border-radius:14px;padding:20px}
-.letter{font-size:clamp(3rem,9vw,4.5rem);font-weight:700;letter-spacing:-.04em;line-height:1}
-.stats{display:flex;gap:28px;flex-wrap:wrap}
-.stats div{display:grid}.stats b{font-size:1.5rem;letter-spacing:-.02em}
-.k{font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mute)}
-.tone-good{color:var(--good)}.tone-warn{color:var(--warn)}.tone-bad{color:var(--bad)}
-.goal{display:grid;grid-template-columns:minmax(0,260px) 1fr;gap:20px;align-items:center;background:var(--soft);border-radius:14px;padding:16px 20px}
-@media (max-width:640px){.goal{grid-template-columns:1fr}}
-.goal b{display:block;font-size:2.25rem;letter-spacing:-.03em;line-height:1.15;overflow-wrap:anywhere}
-table{width:100%;border-collapse:collapse;font-size:.9rem}
-th{font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
-td{padding:10px;border-bottom:1px solid var(--line);vertical-align:middle}
-tr:last-child td{border-bottom:0}.r{text-align:right}
-.gl{font-weight:700;font-size:1rem}
-.pill{display:inline-block;padding:2px 10px;border-radius:999px;font-weight:600;font-size:.8rem}
-.pill.good{background:var(--good-soft);color:var(--good)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}
-.bar{display:block;height:4px;margin-top:6px;background:var(--line);border-radius:2px;overflow:hidden}.bar i{display:block;height:100%;background:currentColor}
-#chart-card{--c:var(--c-ipa)}#chart-card[data-k=afm]{--c:var(--c-afm)}
-.chart{width:100%;height:auto;display:block;touch-action:pan-y;cursor:crosshair;overflow:visible}
-.chart text{font:11px var(--sans);fill:var(--mute)}.chart .gl2{stroke:var(--line);stroke-width:1}
-.chart .ln{fill:none;stroke:var(--c);stroke-width:2.5;stroke-linejoin:round}.chart .env{fill:var(--c);opacity:.14}
-.chart .tg{stroke:var(--warn);stroke-width:1.2;stroke-dasharray:4 3;fill:none}.chart .me{stroke:var(--ink);stroke-width:1.5}
-.chart .hv{stroke:var(--mute);stroke-width:1;stroke-dasharray:2 3}.chart .tl{fill:var(--warn);font-weight:600}
-.chart .dot{fill:var(--c);stroke:var(--panel);stroke-width:2}
-.legend{display:flex;gap:16px;flex-wrap:wrap}.sw{display:inline-block;width:18px;height:0;border-top:3px solid var(--c);vertical-align:middle;margin-right:6px}
-.crow{display:grid;grid-template-columns:minmax(120px,1.4fr) 72px minmax(110px,1fr) minmax(110px,1fr) minmax(90px,.8fr) 40px;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
-.crow:last-child{border-bottom:0}.chead{font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mute);padding-bottom:4px}
-.crow .x{min-height:36px;padding:4px 8px;color:var(--mute)}
-@media (max-width:640px){.chead{display:none}.crow{grid-template-columns:1fr 1fr;padding:12px 0}.crow>:first-child{grid-column:1/-1}.crow .x{grid-column:1/-1;justify-self:end}}
-.total{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.total>div{background:var(--soft);padding:14px 16px;display:grid;gap:2px}.total b{font-size:1.6rem;letter-spacing:-.02em}
-@media (max-width:560px){.total{grid-template-columns:1fr}}
-details{border:1px solid var(--line);border-radius:12px;padding:0 16px;background:var(--panel)}summary{cursor:pointer;padding:14px 0;font-weight:600}
-details[open]{padding-bottom:16px}details>*:not(summary){margin-top:12px}
-.cuts{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
-footer{font-size:.8rem;color:var(--mute);display:grid;gap:6px;max-width:70ch}footer a{color:var(--accent)}
-@media print{.seg,button,details,#chart-card{display:none!important}body{background:#fff;color:#000}.card{border-color:#999}}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));
+  padding-top:max(32px,env(safe-area-inset-top,0px));padding-bottom:max(64px,env(safe-area-inset-bottom,0px))}
+.skip{position:absolute;left:-999px;top:0;z-index:20;background:var(--panel);color:var(--fg);padding:8px 12px;border-radius:6px}
+.skip:focus{left:max(16px,env(safe-area-inset-left,0px));top:max(8px,env(safe-area-inset-top,0px));outline:2px solid var(--accent)}
+.wrap{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:24px;min-width:0}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:1.9rem;font-weight:700}
+h2{font-size:1.25rem;font-weight:600}
+h3{font-size:1rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.lede{color:var(--muted);max-width:65ch}
+header{display:flex;flex-direction:column;gap:8px;padding-bottom:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.tabs{display:inline-flex;border:1px solid var(--line);border-radius:10px;padding:4px;background:var(--input);gap:4px;flex-wrap:wrap;align-self:flex-start;max-width:100%}
+.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:6px;font-weight:600;color:var(--muted)}
+.tabs button:hover{color:var(--accent)}
+.tabs button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.tabs .code{font-family:var(--f-num);font-weight:500;opacity:.8;margin-left:6px;font-size:.8rem}
+.grid-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;min-width:0}
+.group-label{grid-column:1/-1;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-top:4px}
+.field-final{grid-column:1/-1}
+label.field,div.field{display:flex;flex-direction:column;gap:6px;font-size:.82rem;color:var(--muted);font-weight:500;min-width:0}
+.field .row{display:flex;align-items:center;gap:8px;min-width:0}
+.field-name{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+input[type=number],input[type=text],select{font:inherit;font-family:var(--f-num);font-size:.95rem;color:var(--fg);background:var(--input);
+  border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;min-width:0;min-height:40px}
+input[type=text]{font-family:var(--f-body)}
+input::placeholder{color:var(--muted);opacity:1;font-family:var(--f-body);font-weight:500}
+input[type=number]:placeholder-shown,input[type=text]:placeholder-shown{border-style:dashed}
+input:hover,select:hover{border-color:#3a4756}
+input:focus-visible,select:focus-visible,button:focus-visible,#trajectory:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[aria-invalid="true"]{border-color:var(--bad)}
+.unit{font-family:var(--f-num);font-size:.82rem;color:var(--muted);white-space:nowrap}
+.weight{font-family:var(--f-num);font-size:.72rem;color:var(--accent);background:var(--accent-soft);padding:1px 6px;border-radius:4px;align-self:flex-start}
+input[type=range]{width:100%;accent-color:var(--accent);height:32px;margin:0;cursor:pointer}
+.slider-row{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-top:2px}
+.slider-row .bound{font-family:var(--f-num);font-size:.72rem;color:var(--muted)}
+.hint{font-size:.75rem;color:var(--bad);font-weight:500}
+.result{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.result>div{background:var(--panel);padding:16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.result .k{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.result .v{font-family:var(--f-display);font-size:2rem;font-weight:700;line-height:1.15}
+.result .v.range{font-size:1.45rem}
+.result .s{font-size:.8rem;color:var(--muted)}
+.breakdown{font-size:.85rem;color:var(--muted)}
+.ladder{position:relative;height:58px;margin-top:4px}
+.ladder .track{position:absolute;left:0;right:0;top:18px;height:14px;border-radius:3px;overflow:hidden;display:flex}
+.ladder .seg{height:100%;border-right:1px solid var(--panel)}
+.ladder .tick{position:absolute;top:36px;font-family:var(--f-num);font-size:.68rem;color:var(--muted);transform:translateX(-50%);white-space:nowrap}
+.ladder .lbl{position:absolute;top:0;font-family:var(--f-num);font-size:.68rem;color:var(--muted);transform:translateX(-50%)}
+.ladder .marker{position:absolute;top:12px;width:3px;height:26px;background:var(--fg);border-radius:2px;transform:translateX(-50%);transition:left .2s}
+.ladder .band{position:absolute;top:18px;height:14px;background:var(--fg);opacity:.28;border-radius:3px;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.ladder .marker{transition:none}}
+.scroll{overflow-x:auto;min-width:0;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th{font-size:.72rem;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+tr.current td{background:var(--accent-soft)}
+.pill{display:inline-block;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.src{background:var(--accent-soft);color:var(--accent)}
+.pill.fit{background:var(--warn-soft);color:var(--warn)}
+.gradecell{font-family:var(--f-display);font-weight:700;font-size:1rem}
+button{font:inherit;font-size:.85rem;font-weight:500;border:1px solid var(--line);background:var(--input);color:var(--fg);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--accent);color:var(--accent);background:#1a222c}
+button.x{padding:4px 9px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.note{font-size:.85rem;color:var(--muted);max-width:68ch}
+.note strong{color:var(--fg)}
+details.explain{border:1px solid var(--line);border-radius:8px;padding:2px 14px 8px;background:var(--input)}
+details.explain>summary{font-family:var(--f-display);font-weight:600;font-size:1rem;cursor:pointer;padding:10px 0;line-height:1.2;list-style:revert}
+details.explain>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details.explain[open]{padding-bottom:14px}
+details.explain .callout,details.explain .scroll,details.explain .note,details.explain ol{margin-top:8px}
+.callout{border-left:3px solid var(--accent);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+td input[type=number],td input[type=text],td select{padding:5px 7px;font-size:.88rem}
+.cut-in{width:78px}
+.overall{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.overall>div{background:var(--panel);padding:16px;min-width:0}
+.bignum{font-family:var(--f-display);font-size:1.8rem;font-weight:700}
+.bignum.range{font-size:1.35rem}
+ol.steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+.headrow{display:flex;justify-content:space-between;gap:12px 16px;flex-wrap:wrap;align-items:flex-start}
+.headrow h2{padding-top:2px}
+@media (max-width:720px){
+  .grid-inputs{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .result,.overall,.impact-metrics{grid-template-columns:1fr 1fr}
+  .result>div:first-child,.overall>div:first-child,.impact-metric:first-child{grid-column:1/-1}
+  .impact-exam{flex-wrap:wrap;align-items:stretch}
+  .impact-exam .exam-slider{min-width:min(100%,240px);flex:1 1 220px}
+  .impact-exam output{margin-left:auto}
+}
+@media (max-width:560px){
+  .grid-inputs,.result,.overall,.impact-metrics{grid-template-columns:1fr}
+  .result>div:first-child,.overall>div:first-child,.impact-metric:first-child{grid-column:auto}
+  .result .v{font-size:1.6rem}
+  .result .v.range,.bignum.range{font-size:1.35rem}
+  h1{font-size:1.55rem}
+  .panel{padding:18px}
+  .impact-exam{flex-direction:column;gap:12px}
+  .impact-exam output{margin-left:0;text-align:left}
+  td input[type=number],td input[type=text],td select{width:100%;max-width:100%}
+}
+  
+.course-ipa{color:var(--ipa)}.course-afm{color:var(--afm)}
+.impact-panel{gap:16px}
+.impact-legend{display:flex;gap:8px;flex-wrap:wrap}
+.impact-legend button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 12px;font-size:.88rem;background:var(--panel);flex:1 1 auto}
+.impact-legend button[aria-pressed="false"]{opacity:.45}
+.swatch{display:inline-block;width:22px;border-top:3px solid currentColor;flex:0 0 auto}
+.swatch.ipa{color:var(--ipa)}.swatch.afm{color:var(--afm)}.swatch.dotted{border-top:3px dotted var(--muted)}
+.impact-exam{display:flex;align-items:flex-end;gap:16px;background:var(--input);padding:14px 16px;border:1px solid var(--line);border-radius:10px;min-width:0}
+.impact-exam>.field{min-width:0;flex:0 0 160px}
+.impact-exam .exam-slider{flex:1 1 200px;min-width:0}
+.impact-exam output{font-size:1.1rem;min-width:5.5rem;text-align:right;padding-bottom:8px}
+.chart-shell{width:100%;overflow:auto;min-width:0;-webkit-overflow-scrolling:touch}
+.chart-shell svg{display:block;width:100%;height:auto;max-width:100%;touch-action:pan-y}
+.chart-controls{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px}
+.chart-controls label{flex:1 1 170px;min-width:0}
+.effort-switch{display:flex;gap:9px;align-items:center;margin-top:16px;font-size:.9rem}
+.impact-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.impact-metric{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--input);min-width:0}
+.impact-metric .metric-k{display:block;font-size:.75rem;color:var(--muted);margin-bottom:6px}
+.impact-metric strong{font-family:var(--f-num);font-size:1.14rem;display:block;overflow-wrap:anywhere}
+.impact-metric small{display:block;color:var(--muted);font-size:.78rem;margin-top:4px}
+#trajectory{cursor:crosshair}
+@media (max-width:720px){
+  .impact-exam{flex-wrap:wrap;align-items:stretch}
+  .impact-exam .exam-slider{min-width:min(100%,240px);flex:1 1 220px}
+  .impact-exam output{margin-left:auto}
+}
+@media (max-width:560px){
+  .impact-exam{flex-direction:column;align-items:stretch;gap:12px}
+  .impact-exam>.field,.impact-exam .exam-slider{flex:1 1 auto;width:100%}
+  .impact-exam output{margin-left:0;text-align:left;padding-bottom:0;align-self:flex-start}
+}
+
+/* ===== Theme: black + silver, mil-tech mono labels, serif display, angelcore halo ===== */
+html{background:#000;scroll-padding-top:16px;overflow-x:clip}
+body{background:transparent;font-size:15px}
+body::before,body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+body::before{background:radial-gradient(60% 42% at 50% -6%,rgba(207,224,255,.2),transparent 70%),radial-gradient(34% 28% at 88% 12%,rgba(143,180,255,.09),transparent 70%)}
+body::after{background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.3px);background-size:26px 26px;-webkit-mask-image:linear-gradient(#000,transparent 62%);mask-image:linear-gradient(#000,transparent 62%)}
+.wrap{max-width:980px;gap:32px;counter-reset:p}
+h1,h2,h3{font-family:var(--f-display);font-weight:400}
+h1{font-size:clamp(3rem,9vw,5.4rem);line-height:.95;letter-spacing:-.03em;text-shadow:0 0 42px rgba(207,224,255,.28)}
+h1 em{font-style:italic;color:var(--accent)}
+h2{font-size:1.85rem;line-height:1.1;letter-spacing:-.015em}
+.eyebrow,.k,.group-label,th,.metric-k,.bound{font-family:var(--f-mono);font-size:.62rem;font-weight:400;letter-spacing:.16em;color:var(--muted)}
+.lede{font-size:1rem;line-height:1.7}
+header{align-items:center;text-align:center;gap:20px;padding:64px 0 28px;position:relative;isolation:isolate}
+header .lede{margin:0 auto}
+header .eyebrow{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;position:relative;color:var(--fg)}
+header .eyebrow::before,header .eyebrow::after{content:"";position:absolute;width:8px;height:8px;border:1px solid var(--fg);opacity:.7}
+header .eyebrow::before{left:0;top:0;border-right:0;border-bottom:0}header .eyebrow::after{right:0;bottom:0;border-left:0;border-top:0}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--good);box-shadow:0 0 10px var(--good);animation:blink 2.4s ease-in-out infinite}
+header::before,header::after{content:"";position:absolute;left:50%;top:50%;border-radius:50%;z-index:-1;pointer-events:none}
+header::before{width:min(660px,96vw);aspect-ratio:1;translate:-50% -54%;background:conic-gradient(from var(--a),transparent 0 72%,rgba(207,224,255,.55));
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1.5px));mask:radial-gradient(farthest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1.5px));animation:sweep 16s linear infinite}
+header::after{width:min(500px,74vw);aspect-ratio:1;translate:-50% -54%;border:1px dashed rgba(255,255,255,.13);box-shadow:0 0 120px rgba(207,224,255,.1) inset}
+.panel{position:relative;background:var(--panel);border-radius:6px;padding:44px 28px 28px;gap:22px;counter-increment:p;transition:border-color .25s ease}
+.panel:hover{border-color:rgba(255,255,255,.18)}
+/* reticle corners + indexed tag, as in the reference's framed hero */
+.panel::before{content:"";position:absolute;inset:-1px;pointer-events:none;transition:inset .28s cubic-bezier(.2,.7,.2,1),opacity .28s;opacity:.8;
+  --c:linear-gradient(var(--fg),var(--fg));
+  background:var(--c) 0 0/14px 1px no-repeat,var(--c) 0 0/1px 14px no-repeat,var(--c) 100% 0/14px 1px no-repeat,var(--c) 100% 0/1px 14px no-repeat,
+    var(--c) 0 100%/14px 1px no-repeat,var(--c) 0 100%/1px 14px no-repeat,var(--c) 100% 100%/14px 1px no-repeat,var(--c) 100% 100%/1px 14px no-repeat}
+.panel::after{content:"0" counter(p) " / 05  ⊕";position:absolute;left:28px;top:16px;font:400 .58rem var(--f-mono);letter-spacing:.2em;color:var(--muted)}
+@media (hover:hover){.panel:hover::before{inset:-6px;opacity:1}}
+.tabs{align-self:center;border-radius:999px;background:var(--input);padding:5px}
+.tabs button,button{font-family:var(--f-mono);font-size:.66rem;font-weight:400;letter-spacing:.14em;text-transform:uppercase}
+.tabs button{border-radius:999px;padding:10px 20px;min-height:40px}
+.tabs button:hover{color:var(--fg);background:rgba(255,255,255,.06)}
+.tabs button[aria-pressed="true"]{background:var(--fg);color:#000}
+.tabs .code{opacity:.85;margin-left:8px;font-family:var(--f-num)}
+button{border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,.22);color:var(--fg);padding:9px 18px;transition:background-color .2s,color .2s,border-color .2s,transform .2s}
+button:hover{background:var(--fg);color:#000;border-color:var(--fg)}
+button:active{transform:scale(.97)}
+button.x{padding:5px 12px}
+input[type=number],input[type=text],select{background:var(--input);border:1px solid var(--line);border-radius:4px;transition:border-color .2s,box-shadow .2s}
+input:hover,select:hover{border-color:rgba(255,255,255,.28)}
+input:focus-visible,select:focus-visible{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px rgba(207,224,255,.14)}
+input[type=range]{accent-color:var(--fg)}
+.weight{border-radius:2px;border:1px solid rgba(207,224,255,.25);background:transparent;font-size:.64rem;letter-spacing:.08em}
+.result{gap:0;border-radius:4px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));border-color:var(--line)}
+.result>div{background:transparent}
+.result .v{font-family:var(--f-display);font-weight:400;font-size:3.1rem;line-height:1.05;letter-spacing:-.02em;text-shadow:0 0 30px rgba(207,224,255,.3)}
+.result .v.range{font-size:1.9rem}
+.bignum{font-family:var(--f-display);font-weight:400;font-size:2.5rem;letter-spacing:-.02em;text-shadow:0 0 26px rgba(207,224,255,.28)}
+.bignum.range{font-size:1.7rem}
+.overall{border-radius:4px;background:var(--line)}.overall>div{background:#050608}
+.result>div{border-right:1px solid var(--line)}.result>div:last-child{border-right:0}
+.num{font-family:var(--f-num)}
+.result .v.num,.bignum.num{font-family:var(--f-display)}
+th,td{border-bottom-color:rgba(255,255,255,.07)}
+tbody tr{transition:background-color .2s}tbody tr:hover td{background:rgba(255,255,255,.03)}
+tr.current td,tr.active-course td{background:var(--accent-soft)}
+.pill{border-radius:2px;font-family:var(--f-mono);font-size:.6rem;font-weight:400;letter-spacing:.1em;text-transform:uppercase;border:1px solid currentColor;background:transparent;padding:3px 8px}
+.pill.good{background:var(--good-soft)}.pill.warn{background:var(--warn-soft)}.pill.bad{background:var(--bad-soft)}.pill.src{background:var(--accent-soft)}.pill.fit{background:var(--warn-soft)}
+.gradecell{font-family:var(--f-display);font-weight:400;font-size:1.35rem}
+.ladder .track{border-radius:0;height:10px}
+.ladder .track::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 3px,#000 3px 4px)}
+.ladder .seg{border-right:0}
+.ladder .marker{background:#fff;box-shadow:0 0 14px #fff,0 0 2px #fff;border-radius:0}
+.ladder .band{background:#fff}
+.callout{border-left-color:var(--fg)}
+details.explain{border-radius:4px;background:rgba(255,255,255,.02);border-color:var(--line)}
+details.explain>summary{font-family:var(--f-mono);font-size:.68rem;font-weight:400;letter-spacing:.12em;text-transform:uppercase}
+.impact-exam,.impact-metric{border-radius:4px;background:rgba(255,255,255,.025);border-color:var(--line)}
+.impact-metric strong{font-family:var(--f-display);font-weight:400;font-size:1.55rem;letter-spacing:-.01em}
+.impact-legend button{letter-spacing:.1em}
+#trajectory text{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em}
+#trajectory .gp-line{filter:drop-shadow(0 0 5px rgba(207,224,255,.5))}
+.skip{border-radius:4px}
+/* motion: one easing, short distances, nothing loops except the halo and status dot */
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+/* the sweep animates a custom angle, not a transform, so it cannot create scrollable overflow on phones */
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+@keyframes sweep{to{--a:360deg}}
+@keyframes blink{50%{opacity:.35}}
+@keyframes flash{from{filter:brightness(2.2);text-shadow:0 0 36px rgba(207,224,255,.9)}to{filter:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+.reveal{opacity:0}
+.reveal.in{animation:rise .85s cubic-bezier(.2,.7,.2,1) calc(var(--d,0)*90ms) both}
+.flash{animation:flash .6s ease-out}
+html.boot .gp-line{stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.5s cubic-bezier(.4,.1,.2,1) .5s forwards}
+@media (max-width:720px){header .eyebrow{font-size:.54rem;letter-spacing:.12em;padding:8px 12px}.panel{padding:44px 18px 22px}.panel::after{left:18px}.result .v{font-size:2.4rem}header{padding-top:40px}}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1}.reveal.in,.flash,.dot,header::before{animation:none}html.boot .gp-line{animation:none;stroke-dasharray:none;stroke-dashoffset:0}.panel::before{transition:none}}
 </style>
 </head>
 <body>
-<main class="wrap">
-<header>
-  <span class="eyebrow">CUHK MSc Finance · 4.0 scale</span>
-  <h1>GPA calculator</h1>
-  <p class="mute">Enter the marks you have and leave the rest blank. See your grade, the exact score you need on the final, and your overall GPA. Everything stays in your browser.</p>
-</header>
+<a class="skip" href="#h-course">Skip to calculator</a>
+<div class="wrap">
+  <header>
+    <span class="eyebrow"><i class="dot" aria-hidden="true"></i>CUHK MSc Finance · 4.0 grade-point scale</span>
+    <h1>GPA <em>calculator</em></h1>
+    <p class="lede">Pick a course, enter your marks, and see your course score, letter grade and grade point, what you need on the final, and your overall unit-weighted GPA.</p>
+  </header>
 
-<div class="seg" id="tabs" role="radiogroup" aria-label="Course"></div>
+  <div class="tabs" role="group" aria-label="Course template" id="tabs"></div>
 
-<section class="card" aria-labelledby="h-marks">
-  <div class="split">
-    <div class="stack">
-      <div><h2 id="h-marks">Your marks</h2><p class="small mute">Leave anything not graded yet blank. Blank means unknown, so you get a range instead of a guess.</p></div>
-      <div class="fields" id="fields"></div>
-      <div class="actions"><button id="example" type="button">Load example</button><button id="reset" type="button">Clear marks</button></div>
+  <section class="panel" aria-labelledby="h-course">
+    <div class="headrow">
+      <h2 id="h-course">Course score</h2>
+      <div class="toolbar">
+        <span class="note" id="course-src"></span>
+        <button id="reset-marks" type="button">Reset marks</button>
+      </div>
     </div>
+    <p class="note" id="course-note" hidden></p>
+    <div class="grid-inputs" id="comp-grid"></div>
+
     <div class="result" aria-live="polite">
-      <span class="k">Course grade</span>
-      <div class="letter" id="r-letter">–</div>
-      <div class="stats"><div><span class="k">Course score</span><b class="num" id="r-score">–</b></div><div><span class="k">Grade point</span><b class="num" id="r-gp">–</b></div></div>
-      <p class="small mute" id="r-note">Enter a mark to start.</p>
+      <div><span class="k">Course score</span><span class="v num" id="o-pct">–</span><span class="s" id="o-pct-s"></span></div>
+      <div><span class="k">Letter grade</span><span class="v" id="o-letter">–</span><span class="s" id="o-letter-s"></span></div>
+      <div><span class="k">Grade point</span><span class="v num" id="o-gp">–</span><span class="s" id="o-gp-s">on the 4.0 scale</span></div>
     </div>
-  </div>
+    <p class="breakdown num" id="o-break"></p>
+    <div class="ladder" id="ladder" aria-hidden="true"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-need">
+    <h2 id="h-need">What you need on the final</h2>
+    <p class="note" id="need-intro"></p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Grade</th><th class="r">Grade point</th><th class="r">Course cutoff</th><th class="r">Final needed</th><th>Status</th></tr></thead>
+        <tbody id="need-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-overall">
+    <div class="headrow">
+      <h2 id="h-overall">Overall GPA</h2>
+      <div class="toolbar"><button id="add-course" type="button">Add course</button></div>
+    </div>
+    <p class="note">IPA and AFM follow their calculators above. Add other courses as a final percentage or as the letter grade you received. GPA is the unit-weighted average of grade points.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Course</th><th class="r">Units</th><th>Enter as</th><th>Score</th><th class="r">Letter</th><th class="r">GP</th><th></th></tr></thead>
+        <tbody id="course-body"></tbody>
+      </table>
+    </div>
+    <div class="overall">
+      <div><span class="eyebrow">Overall GPA</span><div class="num bignum" id="ov-gpa">–</div></div>
+      <div><span class="eyebrow">Letter equivalent</span><div class="bignum" id="ov-letter">–</div><div class="note" id="ov-letter-s"></div></div>
+      <div><span class="eyebrow">Average score</span><div class="num bignum" id="ov-pct">–</div><div class="note" id="ov-pct-s"></div></div>
+    </div>
+  </section>
+
+
+<section class="panel impact-panel" aria-labelledby="h-trajectory">
+<div class="headrow"><div><span class="eyebrow">Explore your final</span><h2 id="h-trajectory">Final exam impact</h2></div></div>
+<p class="note">Compare course grade points and weighted scores as the final exam changes.</p>
+<div class="impact-legend" role="group" aria-label="Chart series">
+<button type="button" id="show-ipa" aria-pressed="true"><span class="swatch ipa"></span>IPA grade points</button>
+<button type="button" id="show-afm" aria-pressed="true"><span class="swatch afm"></span>AFM grade points</button>
+<button type="button" id="show-scores" aria-pressed="true"><span class="swatch dotted"></span>Course scores · right axis</button>
+</div>
+<div class="impact-exam"><label class="field" for="chart-course">Exam to adjust<select id="chart-course"><option value="ipa">IPA 6112</option><option value="afm">AFM 6092</option></select></label><label class="field exam-slider" for="chart-exam"><span id="chart-exam-label">IPA final exam</span><input id="chart-exam" type="range" min="0" max="100" step="any" value="70"></label><output id="chart-exam-value" for="chart-exam" class="num">70.00%</output></div>
+<div class="chart-shell"><svg id="trajectory" viewBox="0 0 1000 490" role="img" tabindex="0" aria-labelledby="plot-title plot-desc"><title id="plot-title">Final exam impact</title><desc id="plot-desc">Solid lines show course grade points on the left axis. Dotted lines show weighted score on the right axis. Hover to inspect both courses, or use the exam slider. Click, drag or arrow keys change only the selected course final.</desc><g id="plot-content"></g><g id="plot-hover" pointer-events="none"></g></svg></div>
+<div id="chart-readout" class="impact-metrics" aria-live="polite"></div>
+<details class="explain"><summary>How to read this chart &amp; optional effort model</summary>
+<p class="note">Solid teal and blue steps use the left 0–4 course-GP axis; dotted lines use the right 0–100% weighted-score axis. These are course grade points, not overall GPA. Shaded envelopes show bounds when coursework is blank, not zero-filled scores. A single guide marks the selected course’s next reachable grade, only when its coursework is fully entered. The two courses share the final-exam scenario shown in the readout; their saved exams change only when you move the selected course’s exam control.</p>
+<p class="note">Optional effort is illustrative, not a prediction: hours = H × (final % / 100)<sup>p</sup>. H is the chosen hours at a 100% final; the purple dashed curve uses normalized effort (hours / H × 100%) on the right axis. It does not predict GP or account for ability or preparation. Leave hours blank if not estimated. Percentage cutoffs are the existing slide-based / extrapolated assumptions.</p>
+<label class="effort-switch"><input type="checkbox" id="show-effort"> Show hypothetical effort · right axis (off on every load)</label>
+<div class="chart-controls">
+<label class="field course-ipa" for="hours-ipa">IPA hours at 100% (optional)<input id="hours-ipa" type="number" min="0" max="10000" step="any" placeholder="Not estimated"></label>
+<label class="field course-afm" for="hours-afm">AFM hours at 100% (optional)<input id="hours-afm" type="number" min="0" max="10000" step="any" placeholder="Not estimated"></label>
+<label class="field" for="effort-power">Effort exponent<input id="effort-power" type="number" min="1" max="4" step="0.1" value="2"></label>
+</div></details>
 </section>
 
-<section class="card" aria-labelledby="h-need">
-  <div><h2 id="h-need">What you need on the final</h2><p class="small mute" id="need-intro"></p></div>
-  <div class="goal">
-    <label class="f" for="goal">I want to finish with<select id="goal"></select></label>
-    <div aria-live="polite"><span class="k">Final exam score needed</span><b class="num" id="goal-v">–</b><p class="small mute" id="goal-s"></p></div>
-  </div>
-  <table>
-    <thead><tr><th scope="col">Grade</th><th scope="col" class="r">Course cutoff</th><th scope="col">Final needed</th></tr></thead>
-    <tbody id="need"></tbody>
-  </table>
-  <p class="small mute">* Estimated cutoff: the slide stops at C+.</p>
-</section>
+  <section class="panel" aria-labelledby="h-method">
+    <h2 id="h-method">How the cutoffs work</h2>
+    <p class="note">Both templates use the same letter-grade cutoffs and the same CUHK grade-point conversion. Only the component weights differ by course.</p>
+    <details class="explain">
+      <summary>Where the cutoffs come from</summary>
+      <div class="callout">
+        <p class="note">The IPA 6112 slide gives the course-score cutoff for each grade from A down to C+. Its other two columns translate those cutoffs into exam terms, assuming full marks on the non-exam 45%.</p>
+        <ol class="steps note">
+          <li><strong>Exam (MT + Final)</strong> = (course cutoff − 45) ÷ 55. For a B: (80 − 45) ÷ 55 = 63.6%, shown rounded as 64%.</li>
+          <li><strong>Midterm Score</strong> = that unrounded exam percentage × 30. For a B: 63.64% × 30 = 19.1.</li>
+          <li>All 12 derived numbers on the slide come out exactly from these two formulas. Two rival readings fail: computing the midterm from the rounded exam % gives 24.6 for A− (slide says 24.5), and ignoring the 45% gives 28.5 for A (slide says 27.3). So the Course Score column is the input the professor set, which makes it the grade cutoff.</li>
+        </ol>
+      </div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Grade</th><th class="r">Course cutoff</th><th class="r">(C − 45) ÷ 55</th><th class="r">Slide</th><th class="r">× 30</th><th class="r">Slide</th><th>Match</th></tr></thead>
+          <tbody class="num">
+            <tr><td class="gradecell">A</td><td class="r">95%</td><td class="r">90.91%</td><td class="r">91%</td><td class="r">27.27</td><td class="r">27.3</td><td><span class="pill good">Exact</span></td></tr>
+            <tr><td class="gradecell">A−</td><td class="r">90%</td><td class="r">81.82%</td><td class="r">82%</td><td class="r">24.55</td><td class="r">24.5</td><td><span class="pill good">Exact</span></td></tr>
+            <tr><td class="gradecell">B+</td><td class="r">85%</td><td class="r">72.73%</td><td class="r">73%</td><td class="r">21.82</td><td class="r">21.8</td><td><span class="pill good">Exact</span></td></tr>
+            <tr><td class="gradecell">B</td><td class="r">80%</td><td class="r">63.64%</td><td class="r">64%</td><td class="r">19.09</td><td class="r">19.1</td><td><span class="pill good">Exact</span></td></tr>
+            <tr><td class="gradecell">B−</td><td class="r">70%</td><td class="r">45.45%</td><td class="r">45%</td><td class="r">13.64</td><td class="r">13.6</td><td><span class="pill good">Exact</span></td></tr>
+            <tr><td class="gradecell">C+</td><td class="r">60%</td><td class="r">27.27%</td><td class="r">27%</td><td class="r">8.18</td><td class="r">8.2</td><td><span class="pill good">Exact</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+    <details class="explain">
+      <summary>Filling in grades the slide leaves out</summary>
+      <div class="callout">
+        <p class="note">The slide stops at C+. The cutoffs step down by a fixed number of points per sub-grade: 5 points from A to B, then 10 points from B to C+. The step size does not follow the grade-point gaps (A− to B+ is 0.4 GP and B+ to B is 0.3 GP, yet both are 5 points).</p>
+        <p class="note">Two models were tested by hiding each cutoff and predicting it from the two above it. "Same step per sub-grade" predicted B+, B and C+ exactly. "Straight line in grade points" missed every one, by 1.2 to 3.3 points. Both miss B− because that is where the step widens from 5 to 10. Continuing the 10-point step gives <strong>C 50, C− 40, D+ 30, D 20</strong>.</p>
+        <p class="note">Confidence: A to C+ come straight from the slide. C and below are the best-fitting extrapolation, not published numbers, so edit them below if a course gives its own.</p>
+      </div>
+    </details>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Grade</th><th>Standard</th><th class="r">Grade point</th><th class="r">Min. course %</th><th>Source</th></tr></thead>
+        <tbody id="cut-body"></tbody>
+      </table>
+    </div>
+    <div class="toolbar"><button id="reset-cuts" type="button">Reset cutoffs</button><span class="note">Grades are assigned at or above each cutoff. Courses may round or curve differently.</span></div>
+  </section>
+</div>
 
-<section class="card" id="chart-card" data-k="ipa" aria-labelledby="h-chart">
-  <div><h2 id="h-chart">Final exam impact</h2><p class="small mute">Your course grade for every possible final-exam score. Steps sit at the exact scores where the grade changes. Click, drag or use the arrow keys to set your final.</p></div>
-  <svg class="chart" id="chart" viewBox="0 0 720 300" tabindex="0" role="application" aria-label="Course grade by final exam score. Arrow keys change the final exam score."></svg>
-  <p class="small num" id="readout" aria-live="polite"></p>
-  <div class="legend small mute"><span><span class="sw"></span>Grade by final score</span><span id="lg-env" hidden>Shaded: range while coursework is unentered</span><span><span class="sw" style="border-top:2px dashed var(--warn)"></span>Target grade</span></div>
-</section>
-
-<section class="card" aria-labelledby="h-all">
-  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:start">
-    <div><h2 id="h-all">Overall GPA</h2><p class="small mute">Unit-weighted. Courses with no marks, blank percentages and P/U/DI/PA/FA are left out.</p></div>
-    <div class="actions"><button id="copy" type="button">Copy summary</button><button id="add" type="button">Add course</button></div>
-  </div>
-  <div id="courses"></div>
-  <div class="total">
-    <div><span class="k">Overall GPA</span><b class="num" id="t-gpa">–</b></div>
-    <div><span class="k">Letter equivalent</span><b id="t-letter">–</b><span class="small mute" id="t-note"></span></div>
-    <div><span class="k">Average score</span><b class="num" id="t-pct">–</b></div>
-  </div>
-</section>
-
-<details>
-  <summary>Grade cutoffs and where they come from</summary>
-  <p class="small mute">A to C+ come from the IPA 6112 grading slide. C and below (marked est.) continue the 10-point step, so edit them if a course publishes its own. A grade is awarded at or above its cutoff.</p>
-  <div class="cuts" id="cuts"></div>
-  <div class="actions"><button id="reset-cuts" type="button">Reset cutoffs</button></div>
-</details>
-
-<footer>
-  <p>Unofficial student tool, not affiliated with CUHK. Confirm grades against your course outline.</p>
-  <p>Marks are saved only in this browser. <a href="https://github.com/souvik-guha/CUHKMfinGPA">Source on GitHub</a></p>
-</footer>
-</main>
+<noscript><p class="note" style="max-width:860px;margin:20px auto;padding:0 16px">This calculator needs JavaScript to run.</p></noscript>
 
 <script>
-(()=>{
-'use strict';
-const $=id=>document.getElementById(id), chart=$('chart'), EPS=1e-9, KEY='cuhk-gpa-v4';
-const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
-const pretty=g=>g.replace('-','−');
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const rng=(a,b)=>a===b?a:a+'–'+b;
+(function(){
+  const DEFAULT_CUTS = [
+    {g:'A', std:'Excellent', gp:4.0, cut:95, src:'slide'},
+    {g:'A-',std:'Very Good', gp:3.7, cut:90, src:'slide'},
+    {g:'B+',std:'Good',      gp:3.3, cut:85, src:'slide'},
+    {g:'B', std:'Good',      gp:3.0, cut:80, src:'slide'},
+    {g:'B-',std:'Good',      gp:2.7, cut:70, src:'slide'},
+    {g:'C+',std:'Fair',      gp:2.3, cut:60, src:'slide'},
+    {g:'C', std:'Fair',      gp:2.0, cut:50, src:'fitted'},
+    {g:'C-',std:'Fair',      gp:1.7, cut:40, src:'fitted'},
+    {g:'D+',std:'Pass',      gp:1.3, cut:30, src:'fitted'},
+    {g:'D', std:'Pass (lowest passing grade)', gp:1.0, cut:20, src:'fitted'},
+    {g:'F', std:'Failure',   gp:0.0, cut:0,  src:'—'}
+  ];
+  const SEG_COLORS = ['var(--good)','var(--good)','var(--accent)','var(--accent)','var(--accent)','var(--warn)','var(--warn)','var(--warn)','var(--bad)','var(--bad)','var(--bad)'];
 
-// Official 4.0 scale. cut = minimum course % (A to C+ from the IPA 6112 slide; the rest are estimates).
-const SCALE=[['A',4,'Excellent',95,1],['A-',3.7,'Very good',90,1],['B+',3.3,'Good',85,1],['B',3,'Good',80,1],['B-',2.7,'Good',70,1],['C+',2.3,'Fair',60,1],
-  ['C',2,'Fair',50,0],['C-',1.7,'Fair',40,0],['D+',1.3,'Pass',30,0],['D',1,'Pass',20,0],['F',0,'Fail',0,1]].map(([g,gp,std,cut,slide])=>({g,gp,std,cut,slide}));
-const DEFAULT_CUTS=SCALE.map(c=>c.cut), cuts=SCALE.map(c=>({...c}));
-const LETTERS=Object.fromEntries(SCALE.map(c=>[c.g,{gp:c.gp}]));
-['P','U','DI','PA','FA'].forEach(g=>LETTERS[g]={ex:1});
+  // Course templates. weight = % of course; max = what the mark is out of.
+  // def: null means genuinely blank (unknown), not zero.
+  const COURSES = {
+    ipa: {
+      short:'IPA', code:'6112', name:'IPA 6112',
+      src:'Weights from the 6112 grading slide',
+      comps:[
+        {id:'part', label:'Participation', weight:10, max:100, unit:'% earned', def:100},
+        {id:'asg',  label:'Assignments',   weight:35, max:100, unit:'% earned', def:100},
+        {id:'mt',   label:'Midterm',       weight:20, max:30,  unit:'/ 30',     def:null},
+        {id:'fin',  label:'Final exam',    weight:35, max:100, unit:'%',        def:70, final:true}
+      ]
+    },
+    afm: {
+      short:'AFM', code:'6092', name:'AFM 6092',
+      src:'Weights from the 6092 course outline',
+      note:'Critiques are your actual 82.5% on each. Participation and the group case are placeholders at full credit; replace them when those grades come back.',
+      comps:[
+        {id:'part', label:'Class participation', weight:20, max:100, unit:'% earned', def:100},
+        {id:'grp',  label:'Group case PPT & presentation', weight:25, max:100, unit:'% earned', def:100},
+        {id:'crit1', label:'Critique 1', weight:5, max:100, unit:'% earned', def:82.5, group:'Case report critiques (one page each, 5 × 4)'},
+        {id:'crit2', label:'Critique 2', weight:5, max:100, unit:'% earned', def:82.5, group:'Case report critiques (one page each, 5 × 4)'},
+        {id:'crit3', label:'Critique 3', weight:5, max:100, unit:'% earned', def:82.5, group:'Case report critiques (one page each, 5 × 4)'},
+        {id:'crit4', label:'Critique 4', weight:5, max:100, unit:'% earned', def:82.5, group:'Case report critiques (one page each, 5 × 4)'},
+        {id:'fin',  label:'Final exam',    weight:35, max:100, unit:'%', def:60, final:true}
+      ]
+    }
+  };
 
-const CRIT='Case report critiques (5% each)';
-const COURSES={
-  ipa:{name:'IPA 6112',comps:[
-    {id:'part',label:'Participation',w:10,max:100,unit:'%'},{id:'asg',label:'Assignments',w:35,max:100,unit:'%'},
-    {id:'mt',label:'Midterm',w:20,max:30,unit:'/ 30'},{id:'fin',label:'Final exam',w:35,max:100,unit:'%',final:1}]},
-  afm:{name:'AFM 6092',comps:[
-    {id:'part',label:'Class participation',w:20,max:100,unit:'%'},{id:'grp',label:'Group case PPT & presentation',w:25,max:100,unit:'%'},
-    ...[1,2,3,4].map(i=>({id:'crit'+i,label:'Critique '+i,w:5,max:100,unit:'%',group:CRIT})),
-    {id:'fin',label:'Final exam',w:35,max:100,unit:'%',final:1}]}
-};
-const EXAMPLES={ipa:{part:90,asg:85,mt:21},afm:{part:85,grp:88,crit1:80,crit2:82,crit3:78,crit4:84}};
-const blank=k=>Object.fromEntries(COURSES[k].comps.map(c=>[c.id,null]));
-
-let active='ipa', goal='B', hover=null, drag=false, touch=null, units={ipa:3,afm:3}, others=[];
-const marks={ipa:blank('ipa'),afm:blank('afm')};
-
-// A mark is a finite number or null. Blank is unknown, never zero.
-const num=v=>{ if(v===null||v===undefined||v==='') return null; const n=typeof v==='number'?v:Number(String(v).trim().replace('%','')); return Number.isFinite(n)?n:null; };
-const gradeFor=p=>cuts.find(c=>p>=c.cut-EPS)||cuts[cuts.length-1];
-const comp=id=>COURSES[active].comps.find(c=>c.id===id);
-
-// ---- math -------------------------------------------------------------------------------------
-// Course score = sum(mark / max * weight). Unentered components are unknown: lo scores them 0, hi gives full credit.
-function compute(key){
-  let banked=0,E=0,fin=null,fw=0,known=0; const miss=[];
-  for(const c of COURSES[key].comps){
-    const n=num(marks[key][c.id]), v=n===null?null:clamp(n,0,c.max)/c.max*c.w;
-    if(v===null) miss.push(c); else known++;
-    if(c.final){ fw=c.w; fin=v; } else if(v===null) E+=c.w; else banked+=v;
+  const $ = id => document.getElementById(id);
+  const KEY = 'cuhk-gpa-v4';
+  const KEY_OLD = 'cuhk-gpa-v3';
+  const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
+  // EPS only absorbs float noise: for marks with up to 4 decimals the true gap to any rounding or cutoff boundary is >= 9e-9 hundredths.
+  const EPS=1e-9;
+  const fmt = (v,d=1)=>{ if(!Number.isFinite(v)) return '–'; const p=10**d; return (Math.floor(v*p+0.5+EPS)/p).toFixed(d); }; // round half up
+  const ceil2 = v=>(Math.ceil(v*100-EPS)/100).toFixed(2); // needed/gap figures round UP so the number shown always suffices
+  const pretty = g => g.replace('-','−');
+  const esc = s => String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const isBlank = v => v===null || v===undefined || v==='';
+  const finalCompOf = C => C.comps.find(c=>c.final);
+  function parseUnits(v){
+    const n = typeof v==='number' ? v : parseFloat(v);
+    return (Number.isFinite(n) && n>0) ? n : 0;
   }
-  return {banked,E,fw,fin,known,miss,complete:!miss.length,lo:banked+(fin??0),hi:banked+E+(fin??fw)};
-}
-// Final-exam % needed for a cutoff: worst case (unknown coursework = 0) and best case (unknown = full credit).
-const need=(r,cut)=>({hi:(cut-r.banked)/r.fw*100,lo:(cut-r.banked-r.E)/r.fw*100});
-// Needed scores round UP: 69.52% would still fall short of a cutoff that needs 69.5238%.
-const up=v=>(Math.ceil(v*100-1e-7)/100).toFixed(2);
-// A shown score never crosses a cutoff by rounding (79.9965 shows 79.99, not 80.00).
-const showPct=v=>{ const r=Math.round(v*100)/100; return (gradeFor(r)===gradeFor(v)?r:Math.floor(v*100+1e-7)/100).toFixed(2); };
-function needLabel(r,cut){
-  const {lo,hi}=need(r,cut), tone=x=>x<=60?'good':x<=85?'warn':'bad';
-  if(hi<=EPS) return ['Secured','good',0];
-  if(lo>100+EPS) return ['Out of reach','bad',100];
-  if(r.E===0) return [up(hi)+'%',tone(hi),hi];
-  if(lo<=0) return [hi<=100?`Up to ${up(hi)}%`:'Depends on unentered marks','warn',Math.min(hi,100)];
-  return [hi<=100?`${up(lo)}–${up(hi)}%`:`${up(lo)}% or more`,'warn',Math.min(hi,100)];
-}
-const gradeRange=(a,b)=>a===b?pretty(a.g):pretty(a.g)+' to '+pretty(b.g);
-const gpRange=(a,b)=>rng(a.gp.toFixed(1),b.gp.toFixed(1));
 
-// ---- state ------------------------------------------------------------------------------------
-const validCuts=a=>a.length===cuts.length&&a.every(v=>typeof v==='number'&&Number.isFinite(v)&&v>=0&&v<=100)&&a[a.length-1]===0&&a.every((v,i)=>!i||v<a[i-1]);
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify({active,marks,cuts:cuts.map(c=>c.cut),others,units})); }catch{} }
-function load(){
+  function parseMark(raw){
+    if(isBlank(raw)) return null;
+    const v = typeof raw==='number' ? raw : Number(String(raw).trim());
+    return Number.isFinite(v) ? v : null;
+  }
+
+  function defaultMarks(key){ return Object.fromEntries(COURSES[key].comps.map(c=>[c.id,c.def])); }
+  let cuts = DEFAULT_CUTS.map(c=>({...c}));
+  let active = 'ipa';
+  let marks = {};
+  for(const k in COURSES) marks[k]=defaultMarks(k);
+  let others = [];
+  let units = {ipa:3, afm:3};
+  let clearedDefaultMidterm = false;
+
+  function validCuts(values){
+    return values.length===DEFAULT_CUTS.length && values.every((v,i)=>Number.isFinite(v)&&v>=0&&v<=100&&(i===0||values[i-1]-v>=0.01-1e-10)) && values[values.length-1]===0;
+  }
+  function commitCut(i,raw){
+    const n=raw.trim()===''?NaN:Number(raw);
+    if(Number.isFinite(n)){
+      const low=cuts[i+1].cut+0.01, high=i===0?100:cuts[i-1].cut-0.01;
+      cuts[i].cut=clamp(n,low,high);
+    }
+    return cuts[i].cut;
+  }
+  function restoreEffort(data){
+    if(!data||typeof data!=='object')return;
+    for(const k of ['ipa','afm']){
+      const v=data[k];$('hours-'+k).value=v==null||v===''||!Number.isFinite(Number(v))?'':clamp(Number(v),0,10000);
+    }
+    const v=data.power;$('effort-power').value=v==null||v===''||!Number.isFinite(Number(v))?2:clamp(Number(v),1,4);
+  }
+
+  function applySaved(s){
+    if(!s || typeof s!=='object') return;
+    if(s.active && COURSES[s.active]) active=s.active;
+    if(s.marks){
+      for(const k in COURSES){
+        if(!s.marks[k]) continue;
+        for(const c of COURSES[k].comps){
+          if(!Object.prototype.hasOwnProperty.call(s.marks[k], c.id)) continue;
+          const v=s.marks[k][c.id];
+          if(v===null || v==='') marks[k][c.id]=null;
+          else if(typeof v==='number' && Number.isFinite(v)) marks[k][c.id]=v;
+        }
+      }
+    }
+    if(s.clearedDefaultMidterm===true) clearedDefaultMidterm=true;
+    else{
+      if(marks.ipa.mt===16) marks.ipa.mt=null; // leftover calculator default, not a confirmed score
+      clearedDefaultMidterm=true;
+    }
+    if(Array.isArray(s.cuts)&&validCuts(s.cuts))s.cuts.forEach((v,i)=>cuts[i].cut=v);
+    restoreEffort(s.effort);
+    if(Array.isArray(s.others)){
+      others=s.others.filter(c=>c && typeof c==='object').map(c=>({
+        name: typeof c.name==='string'?c.name:'New course',
+        units: Number.isFinite(parseFloat(c.units))?parseFloat(c.units):3,
+        mode: c.mode==='letter'?'letter':c.mode==='exclude'?'exclude':'pct',
+        value: c.value==null?'':c.value
+      }));
+    }
+    if(s.units) for(const k in units){ if(s.units[k]==null || s.units[k]==='') continue; units[k]=parseUnits(s.units[k]); }
+  }
+
   try{
-    const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(!s||typeof s!=='object') return;
-    if(COURSES[s.active]) active=s.active;
-    for(const k in COURSES) if(s.marks&&s.marks[k]) for(const id in marks[k]) marks[k][id]=num(s.marks[k][id]);
-    if(Array.isArray(s.cuts)&&validCuts(s.cuts)) s.cuts.forEach((v,i)=>cuts[i].cut=v);
-    if(Array.isArray(s.others)) others=s.others.filter(o=>o&&typeof o==='object').map(o=>({name:String(o.name??''),units:num(o.units)??3,mode:o.mode==='letter'?'letter':'pct',value:o.value??''}));
-    if(s.units) for(const k in units){ const u=num(s.units[k]); if(u!==null&&u>=0) units[k]=u; }
-  }catch{}
-}
+    const rawNew=localStorage.getItem(KEY);
+    const raw=rawNew||localStorage.getItem(KEY_OLD);
+    if(raw) applySaved(JSON.parse(raw));
+  }catch(e){}
+  clearedDefaultMidterm=true;
 
-// ---- marks panel ------------------------------------------------------------------------------
-function renderTabs(){
-  $('tabs').innerHTML=Object.entries(COURSES).map(([k,C])=>`<label><input type="radio" name="course" value="${k}"${k===active?' checked':''}>${C.name}</label>`).join('');
-}
-function renderFields(){
-  let g=null,h='';
-  $('chart-card').dataset.k=active;
-  for(const c of COURSES[active].comps){
-    if(c.group&&c.group!==g) h+=`<div class="grp">${esc(c.group)}</div>`; g=c.group||null;
-    h+=`<div class="f${c.final?' wide':''}"><label for="in-${c.id}">${esc(c.label)}<span class="chip">${c.w}%</span></label>
-      <div class="row"><input id="in-${c.id}" data-id="${c.id}" type="number" inputmode="decimal" step="any" min="0" max="${c.max}" placeholder="Not entered" value="${marks[active][c.id]??''}" autocomplete="off" aria-describedby="e-${c.id}"><span class="u">${esc(c.unit)}</span></div>
-      <span class="err" id="e-${c.id}" hidden>Maximum is ${c.max}; the score is capped.</span></div>`;
+  function save(){
+    try{
+      localStorage.setItem(KEY, JSON.stringify({active, marks, cuts:cuts.map(c=>c.cut), others, units, clearedDefaultMidterm, effort:{ipa:$('hours-ipa').value,afm:$('hours-afm').value,power:$('effort-power').value}}));
+    }catch(e){}
   }
-  $('fields').innerHTML=h;
-}
-function setFinal(x){
-  marks[active].fin=Number(clamp(x,0,100).toFixed(2));
-  const el=$('in-fin'); el.value=marks[active].fin; el.removeAttribute('aria-invalid'); $('e-fin').hidden=true; update();
-}
 
-// ---- result + needed --------------------------------------------------------------------------
-function renderResult(){
-  const r=compute(active), a=gradeFor(r.lo), b=gradeFor(r.hi), L=$('r-letter');
-  if(!r.known){ L.textContent=$('r-score').textContent=$('r-gp').textContent='–'; L.className='letter'; $('r-note').textContent='Enter a mark to start.'; return; }
-  L.textContent=gradeRange(a,b); L.className='letter tone-'+(b.gp>=3?'good':b.gp>=2?'warn':'bad');
-  $('r-score').textContent=rng(showPct(r.lo),showPct(r.hi))+'%';
-  $('r-gp').textContent=gpRange(a,b);
-  const next=cuts[cuts.indexOf(a)-1];
-  $('r-note').textContent=r.complete?(next?`${up(next.cut-r.lo)} points below ${pretty(next.g)}. `:'Top grade. ')+a.std+(a.slide?'':' (estimated band)')
-    :'Range, because '+r.miss.map(c=>c.label.toLowerCase()).join(', ').replace(/, ([^,]*)$/,' and $1')+' not entered. Blank counts as unknown, not zero.';
-}
-function renderNeed(){
-  const r=compute(active), graded=cuts.filter(c=>c.g!=='F'), sig=graded.map(c=>c.g+c.cut).join();
-  if($('goal').dataset.sig!==sig){ $('goal').innerHTML=graded.map(c=>`<option value="${c.g}">${pretty(c.g)} · ${c.cut}%+ course score</option>`).join(''); $('goal').dataset.sig=sig; }
-  if(!graded.some(c=>c.g===goal)) goal='B';
-  $('goal').value=goal;
-  $('need-intro').textContent=`The final is worth ${r.fw}%, so each 1% on it adds ${r.fw/100} to your course score. You have banked ${showPct(r.banked)}% from ${100-r.fw-r.E}% of coursework entered`+(r.E?`; ${r.E}% is not entered, so some answers are ranges.`:'.');
-  $('need').innerHTML=graded.map(c=>{ const [t,tone,w]=needLabel(r,c.cut);
-    return `<tr><td class="gl">${pretty(c.g)} <span class="mute small num">${c.gp.toFixed(1)}</span></td><td class="r num">${c.cut}%${c.slide?'':'*'}</td><td><span class="pill ${tone}">${t}</span><span class="bar tone-${tone}"><i style="width:${w}%"></i></span></td></tr>`; }).join('');
-  const t=cuts.find(c=>c.g===goal), [text,tone]=needLabel(r,t.cut), gv=$('goal-v');
-  gv.textContent=r.known?text:'–'; gv.className='num tone-'+tone;
-  $('goal-s').textContent=!r.known?'Enter your marks above and this fills in.':text==='Secured'?`${pretty(t.g)} is locked in even with 0% on the final.`
-    :text==='Out of reach'?`Even 100% on the final leaves you short of ${pretty(t.g)}.`:`on the final for ${pretty(t.g)} (${t.cut}%+ course score).`+(t.slide?'':' This cutoff is an estimate.');
-}
-
-// ---- chart ------------------------------------------------------------------------------------
-// The plot is laid out at the real pixel width so text stays readable on phones.
-let W=720,H=300,ML=52,MR=16,MT=22,MB=40,PW=0,PH=0;
-function layout(){
-  W=Math.max(300,Math.round(chart.clientWidth)||720); H=clamp(Math.round(W*.5),260,320);
-  ML=W<480?36:52; MR=W<480?10:16; MB=W<480?36:40; PW=W-ML-MR; PH=H-MT-MB;
-  chart.setAttribute('viewBox',`0 0 ${W} ${H}`);
-}
-const X=v=>ML+v/100*PW, Y=g=>MT+(1-g/4)*PH, pt=q=>X(q[0]).toFixed(1)+' '+Y(q[1]).toFixed(1);
-// Exact step function: the grade as the final goes 0..100 when unentered coursework adds e points.
-function steps(r,e){
-  const base=r.banked+e; let gp=gradeFor(base).gp; const p=[[0,gp]];
-  for(const c of [...cuts].reverse()){ const x=(c.cut-base)/r.fw*100; if(x>1e-9&&x<=100+1e-9&&c.gp>gp){ p.push([x,gp]); gp=c.gp; p.push([x,gp]); } }
-  p.push([100,gp]); return p;
-}
-const path=p=>'M'+p.map(pt).join('L');
-function at(r,x){ const lo=r.banked+r.fw*x/100, hi=lo+r.E, a=gradeFor(lo), b=gradeFor(hi);
-  return `Final ${x.toFixed(2)}% → course ${rng(showPct(lo),showPct(hi))}% → ${gradeRange(a,b)} (${gpRange(a,b)} GP)`; }
-function renderChart(){
-  const r=compute(active), lo=steps(r,0), hi=steps(r,r.E), t=cuts.find(c=>c.g===goal), n=need(r,t.cut), fm=num(marks[active].fin);
-  let s='';
-  for(const c of cuts) s+=`<line class="gl2" x1="${ML}" x2="${W-MR}" y1="${Y(c.gp)}" y2="${Y(c.gp)}"/><text x="${ML-8}" y="${Y(c.gp)+4}" text-anchor="end">${pretty(c.g)}</text>`;
-  for(let x=0;x<=100;x+=W<480?20:10) s+=`<text x="${X(x)}" y="${H-MB+18}" text-anchor="middle">${x}%</text>`;
-  s+=`<text x="${ML+PW/2}" y="${H-4}" text-anchor="middle">Final exam score</text>`;
-  if(r.E) s+=`<path class="env" d="${path(lo)}L${[...hi].reverse().map(pt).join('L')}Z"/><path class="ln" style="stroke-width:1.5;opacity:.7" d="${path(hi)}"/>`;
-  s+=`<path class="ln" d="${path(lo)}"/><line class="tg" x1="${ML}" x2="${W-MR}" y1="${Y(t.gp)}" y2="${Y(t.gp)}"/>`;
-  for(const v of [n.hi,n.lo].filter((v,i,a)=>v>1e-9&&v<=100+1e-9&&a.indexOf(v)===i))
-    s+=`<line class="tg" x1="${X(v)}" x2="${X(v)}" y1="${MT}" y2="${H-MB}"/><text class="tl" x="${clamp(X(v),ML+40,W-MR-40)}" y="${MT-5}" text-anchor="middle">${pretty(t.g)} at ${up(v)}%</text>`;
-  if(hover!==null) s+=`<line class="hv" x1="${X(hover)}" x2="${X(hover)}" y1="${MT}" y2="${H-MB}"/>`;
-  if(fm!==null){ const f=clamp(fm,0,100), d=r.fw*f/100; s+=`<line class="me" x1="${X(f)}" x2="${X(f)}" y1="${MT}" y2="${H-MB}"/>`;
-    for(const g of new Set([gradeFor(r.banked+d).gp,gradeFor(r.banked+r.E+d).gp])) s+=`<circle class="dot" cx="${X(f)}" cy="${Y(g)}" r="5"/>`; }
-  $('chart').innerHTML=s; $('lg-env').hidden=!r.E;
-  const x=hover??(fm===null?null:clamp(fm,0,100));
-  $('readout').textContent=x===null?'Hover or click the chart to explore.':at(r,x);
-}
-const xAt=e=>{ const b=chart.getBoundingClientRect(); return clamp(((e.clientX-b.left)/b.width*W-ML)/PW*100,0,100); };
-chart.addEventListener('pointerdown',e=>{
-  touch={x:e.clientX,y:e.clientY,t:e.pointerType==='touch'};
-  if(!touch.t){ drag=true; chart.setPointerCapture(e.pointerId); hover=xAt(e); setFinal(hover); }
-});
-chart.addEventListener('pointermove',e=>{
-  if(touch?.t&&!drag){ const dx=Math.abs(e.clientX-touch.x); if(dx>6&&dx>Math.abs(e.clientY-touch.y)){ drag=true; chart.setPointerCapture(e.pointerId); } }
-  if(drag){ hover=xAt(e); setFinal(hover); } else if(e.pointerType!=='touch'){ hover=xAt(e); renderChart(); }
-});
-chart.addEventListener('pointerup',e=>{ if(touch?.t&&!drag&&Math.hypot(e.clientX-touch.x,e.clientY-touch.y)<8) setFinal(xAt(e)); drag=false; touch=null; });
-chart.addEventListener('pointercancel',()=>{ drag=false; touch=null; });
-chart.addEventListener('pointerleave',()=>{ if(!drag){ hover=null; renderChart(); } });
-chart.addEventListener('keydown',e=>{
-  const d=e.shiftKey?0.1:1, cur=num(marks[active].fin), m={ArrowRight:d,ArrowUp:d,ArrowLeft:-d,ArrowDown:-d};
-  let v; if(e.key in m) v=(cur??50)+m[e.key]; else if(e.key==='Home') v=0; else if(e.key==='End') v=100; else return;
-  e.preventDefault(); hover=null; setFinal(v);
-});
-
-// ---- overall ----------------------------------------------------------------------------------
-function otherItem(o){
-  if(o.mode==='letter'){ const L=LETTERS[o.value]; return L&&!L.ex?{gp:L.gp}:null; }
-  const n=num(o.value); if(n===null) return null; const v=clamp(n,0,100); return {gp:gradeFor(v).gp,pct:v};
-}
-const letterFor=gp=>SCALE.reduce((b,c)=>{ const dc=Math.abs(c.gp-gp), db=Math.abs(b.gp-gp); return dc<db-EPS||(Math.abs(dc-db)<=EPS&&c.gp>b.gp)?c:b; });
-function buildCourses(){
-  const opts=Object.keys(LETTERS).map(g=>`<option value="${g}">${pretty(g)}${LETTERS[g].ex?' (not in GPA)':''}</option>`).join('');
-  let h=`<div class="crow chead" aria-hidden="true"><span>Course</span><span>Units</span><span>Enter as</span><span>Score</span><span>Grade</span><span></span></div>`;
-  for(const k in COURSES) h+=`<div class="crow" data-k="${k}"><strong>${COURSES[k].name}</strong><input type="number" step="any" min="0" value="${units[k]}" data-f="units" aria-label="Units for ${COURSES[k].name}"><span class="mute small">From calculator</span><span class="num sc"></span><span class="gr"></span><span></span></div>`;
-  others.forEach((o,i)=>{ h+=`<div class="crow" data-i="${i}"><input type="text" value="${esc(o.name)}" placeholder="Course name" data-f="name" aria-label="Course name">
-    <input type="number" step="any" min="0" value="${esc(o.units)}" data-f="units" aria-label="Units">
-    <select data-f="mode" aria-label="Enter as"><option value="pct"${o.mode==='pct'?' selected':''}>Percent</option><option value="letter"${o.mode==='letter'?' selected':''}>Letter</option></select>
-    ${o.mode==='letter'?`<select data-f="value" aria-label="Letter grade">${opts.replace(`value="${esc(o.value)}"`,`value="${esc(o.value)}" selected`)}</select>`:`<input type="number" step="any" min="0" max="100" value="${esc(o.value)}" placeholder="e.g. 82" data-f="value" aria-label="Course percentage">`}
-    <span class="gr"></span><button class="x" type="button" data-f="remove" aria-label="Remove ${esc(o.name||'course')}">✕</button></div>`; });
-  $('courses').innerHTML=h; paintCourses();
-}
-function paintCourses(){
-  const inc=[], put=(el,sc,gr)=>{ const s=el.querySelector('.sc'); if(s) s.textContent=sc; el.querySelector('.gr').textContent=gr; };
-  for(const k in COURSES){
-    const r=compute(k), el=$('courses').querySelector(`[data-k="${k}"]`), a=gradeFor(r.lo), b=gradeFor(r.hi);
-    if(!r.known){ put(el,'No marks yet','–'); continue; }
-    put(el,rng(showPct(r.lo),showPct(r.hi))+'%',gradeRange(a,b)+' · '+gpRange(a,b));
-    if(units[k]>0) inc.push({u:units[k],a:a.gp,b:b.gp,p:[r.lo,r.hi]});
+  // Map a course score to a letter using the estimated cutoffs (inclusive at the bound).
+  // A 1e-9 tolerance only absorbs binary floating-point noise at an exact cutoff; it does not round 79.999 to 80.
+  function gradeFor(pct){
+    for(const c of cuts){ if(pct >= c.cut - 1e-9) return c; }
+    return cuts[cuts.length-1];
   }
-  others.forEach((o,i)=>{ const el=$('courses').querySelector(`[data-i="${i}"]`), it=otherItem(o), u=num(o.units);
-    el.querySelector('.gr').textContent=it?`${pretty(o.mode==='letter'?o.value:gradeFor(it.pct).g)} · ${it.gp.toFixed(1)}`:LETTERS[o.value]?.ex?'Not in GPA':'–';
-    if(it&&u>0) inc.push({u,a:it.gp,b:it.gp,p:it.pct===undefined?null:[it.pct,it.pct]}); });
-  const U=inc.reduce((s,x)=>s+x.u,0);
-  if(!U){ $('t-gpa').textContent=$('t-letter').textContent=$('t-pct').textContent='–'; $('t-note').textContent='Enter marks for at least one course.'; return; }
-  const g=['a','b'].map(k=>inc.reduce((s,x)=>s+x.u*x[k],0)/U), l0=letterFor(g[0]), l1=letterFor(g[1]);
-  const P=inc.filter(x=>x.p), PU=P.reduce((s,x)=>s+x.u,0), avg=i=>showPct(P.reduce((s,x)=>s+x.u*x.p[i],0)/PU);
-  $('t-gpa').textContent=rng(g[0].toFixed(2),g[1].toFixed(2));
-  $('t-letter').textContent=gradeRange(l0,l1);
-  $('t-note').textContent=g[0]!==g[1]?'Range while marks are unentered':Math.abs(l0.gp-g[0])>0.005?`Nearest to ${l0.gp.toFixed(1)}`:l0.std;
-  $('t-pct').textContent=PU?rng(avg(0),avg(1))+'%':'–';
-}
+  const byLetter = g => cuts.find(c=>c.g===g);
+  // A shown score must never cross a cutoff by rounding (79.9965 shows 79.99, not 80.00 beside a B-).
+  function pctText(v){ const r=Number(fmt(v,2)); return (gradeFor(r)===gradeFor(v)?r:Math.floor(v*100+EPS)/100).toFixed(2); }
+  function pctRange(lo,hi){ const a=pctText(lo), b=pctText(hi); return a===b?a+'%':a+'–'+b+'%'; }
 
-// ---- cutoffs ----------------------------------------------------------------------------------
-function renderCuts(){
-  $('cuts').innerHTML=cuts.map((c,i)=>`<label class="f">${pretty(c.g)} · ${c.gp.toFixed(1)}${c.slide?'':' (est.)'}${c.g==='F'?'<input type="number" value="0" disabled>':`<input type="number" step="any" min="0" max="100" value="${c.cut}" data-i="${i}">`}</label>`).join('');
-}
-$('cuts').addEventListener('input',e=>{ const i=+e.target.dataset.i, a=cuts.map(c=>c.cut), v=num(e.target.value); a[i]=v===null?NaN:v;
-  const ok=validCuts(a); e.target.setAttribute('aria-invalid',!ok); if(ok){ cuts[i].cut=v; update(); } });
-$('cuts').addEventListener('focusout',e=>{ const i=e.target.dataset.i; if(i!==undefined){ e.target.value=cuts[+i].cut; e.target.removeAttribute('aria-invalid'); } });
-$('reset-cuts').addEventListener('click',()=>{ cuts.forEach((c,i)=>c.cut=DEFAULT_CUTS[i]); renderCuts(); update(); });
+  function compute(key){
+    const C=COURSES[key], m=marks[key];
+    let banked=0, graded=0, minTotal=0, maxTotal=0, known=0, knownWeight=0;
+    const parts=[], missing=[], missingPre=[];
+    let finalComp=null;
+    C.comps.forEach(c=>{
+      if(c.final) finalComp=c;
+      const raw=m[c.id], n=parseMark(raw), entered=n!==null;
+      if(!entered){
+        missing.push(c);
+        if(!c.final) missingPre.push(c);
+        minTotal+=0;
+        maxTotal+=c.weight;
+        parts.push({c, contrib:null, missing:true});
+        return;
+      }
+      const contrib=clamp(n,0,c.max)/c.max*c.weight;
+      minTotal+=contrib; maxTotal+=contrib;
+      known+=contrib; knownWeight+=c.weight;
+      parts.push({c, contrib, missing:false});
+      if(!c.final){ banked+=contrib; graded+=c.weight; }
+    });
+    const complete=missing.length===0;
+    const preComplete=missingPre.length===0;
+    const total=complete?minTotal:null;
+    return {total, minTotal, maxTotal, banked, graded, parts, finalComp, missing, missingPre, known, knownWeight, complete, preComplete};
+  }
 
-// ---- wiring -----------------------------------------------------------------------------------
-function update(){ renderResult(); renderNeed(); renderChart(); paintCourses(); save(); }
-$('tabs').addEventListener('change',e=>{ active=e.target.value; hover=null; renderFields(); update(); });
-$('fields').addEventListener('input',e=>{ const el=e.target, id=el.dataset.id; if(!id) return;
-  const n=num(el.value); marks[active][id]=n; const bad=n!==null&&(n<0||n>comp(id).max);
-  el.setAttribute('aria-invalid',bad); $('e-'+id).hidden=!bad; update(); });
-$('goal').addEventListener('change',e=>{ goal=e.target.value; renderNeed(); renderChart(); });
-$('example').addEventListener('click',()=>{ marks[active]={...blank(active),...EXAMPLES[active]}; renderFields(); update(); });
-$('reset').addEventListener('click',()=>{ marks[active]=blank(active); renderFields(); update(); });
-$('add').addEventListener('click',()=>{ others.push({name:'',units:3,mode:'pct',value:''}); buildCourses(); save(); $('courses').querySelector(`[data-i="${others.length-1}"] input`).focus(); });
-$('courses').addEventListener('input',e=>{ const el=e.target, f=el.dataset.f, row=el.closest('.crow'); if(!f||f==='remove'||f==='mode') return;
-  if(row.dataset.k){ const u=num(el.value); units[row.dataset.k]=u!==null&&u>=0?u:0; }
-  else others[+row.dataset.i][f]=f==='units'?(num(el.value)??0):el.value;
-  paintCourses(); save(); });
-$('courses').addEventListener('change',e=>{ const el=e.target, row=el.closest('.crow'); if(el.dataset.f!=='mode'||row.dataset.i===undefined) return;
-  const o=others[+row.dataset.i]; o.mode=el.value; o.value=el.value==='letter'?'B':''; buildCourses(); save(); });
-$('courses').addEventListener('click',e=>{ if(e.target.dataset.f==='remove'){ others.splice(+e.target.closest('.crow').dataset.i,1); buildCourses(); save(); } });
-$('copy').addEventListener('click',async()=>{ const b=$('copy'), t=id=>$(id).textContent.trim();
-  const tx=`${COURSES[active].name}: ${t('r-score')}, ${t('r-letter')} (${t('r-gp')} GP). For ${goal}: ${t('goal-v')} on the final. Overall GPA ${t('t-gpa')}. (CUHK MSc Finance GPA calculator, unofficial)`;
-  let ok=false; try{ await navigator.clipboard.writeText(tx); ok=true; }catch{} b.textContent=ok?'Copied':'Copy failed'; setTimeout(()=>b.textContent='Copy summary',1600); });
+  function fmtRange(lo, hi, d, suffix){
+    const a=fmt(lo,d), b=fmt(hi,d);
+    if(a===b) return a+(suffix||'');
+    return a+'–'+b+(suffix||'');
+  }
 
-load(); renderTabs(); renderFields(); renderCuts(); buildCourses(); layout(); update();
-let rw=chart.clientWidth; addEventListener('resize',()=>{ if(chart.clientWidth!==rw){ rw=chart.clientWidth; layout(); renderChart(); } });
-window.__GPA__={geo:()=>({W,H,ML,MT,PW,PH}),marks,cuts,units,get others(){return others;},get active(){return active;},compute,gradeFor,showPct,up,needLabel,update,buildCourses};
+  function missingLabels(list){
+    return list.map(c=>c.label.toLowerCase()).join(', ').replace(/, ([^,]*)$/, ' and $1');
+  }
+
+  // ---------- tabs ----------
+  function renderTabs(){
+    $('tabs').innerHTML = Object.entries(COURSES).map(([k,C])=>
+      `<button type="button" id="tab-${k}" aria-pressed="${k===active}">${esc(C.short)}<span class="code">${esc(C.code)}</span></button>`).join('');
+    for(const k in COURSES) $('tab-'+k).addEventListener('click',()=>{ active=k; save(); renderTabs(); renderInputs(); update(); });
+  }
+
+  // Any score is valid: never constrain marks to a grid (a typed 70.3 must not be flagged or snapped).
+  const stepFor=()=>'any';
+
+  function setHint(id, msg){
+    const el=$('hint-'+id);
+    if(!el) return;
+    el.hidden=!msg;
+    el.textContent=msg||'';
+  }
+
+  function hintFor(c, n){
+    if(n===null) return '';
+    if(n>c.max) return `${c.label} can’t be over ${c.max}. The calculator uses ${c.max} until you correct it.`;
+    if(n<0) return `${c.label} can’t be negative. The calculator uses 0 until you correct it.`;
+    return '';
+  }
+
+  function bindScoreInput(c){
+    const el=$('in-'+c.id);
+    const apply=()=>{
+      const n=parseMark(el.value);
+      if(el.value.trim()!=='' && n===null) return; // keep previous while typing an incomplete token like "-"
+      marks[active][c.id]=n;
+      el.setAttribute('aria-invalid', hintFor(c,n)?'true':'false');
+      setHint(c.id, hintFor(c,n));
+      if(c.final){
+        const slider=$('in-fin-range');
+        if(slider && n!==null) slider.value=String(clamp(n,0,c.max));
+      }
+      update();
+    };
+    el.addEventListener('input',()=>apply(false));
+    el.addEventListener('change',()=>{
+      const n=parseMark(el.value);
+      if(n===null){ marks[active][c.id]=null; el.value=''; setHint(c.id,''); el.removeAttribute('aria-invalid'); update(); return; }
+      if(n>c.max||n<0){ const clamped=clamp(n,0,c.max); marks[active][c.id]=clamped; el.value=String(clamped); setHint(c.id,''); el.removeAttribute('aria-invalid'); update(); }
+    });
+  }
+
+  function bindExamSlider(finalC){
+    const slider=$('in-fin-range');
+    if(!slider || !finalC) return;
+    slider.addEventListener('input',()=>{
+      const v=parseFloat(slider.value);
+      if(!Number.isFinite(v)) return;
+      // Slider updates only the final exam — never coursework or midterm.
+      marks[active][finalC.id]=v;
+      const num=$('in-'+finalC.id);
+      if(num){ num.value=String(v); num.removeAttribute('aria-invalid'); }
+      setHint(finalC.id,'');
+      update();
+    });
+  }
+
+  // ---------- inputs ----------
+  function renderInputs(){
+    const C=COURSES[active];
+    $('h-course').textContent = C.name + ' course score';
+    $('course-src').textContent = C.src;
+    const note=$('course-note'); note.hidden=!C.note; note.textContent=C.note||'';
+    let html='', lastGroup=null;
+    C.comps.forEach(c=>{
+      if(c.group && c.group!==lastGroup){ html+=`<div class="group-label">${esc(c.group)}</div>`; }
+      lastGroup=c.group||null;
+      const val=isBlank(marks[active][c.id])?'':marks[active][c.id];
+      const placeholder=c.final?'e.g. 70':'Not entered';
+      if(c.final){
+        const cur=parseMark(marks[active][c.id]);
+        const sliderVal=cur===null?'':clamp(cur,0,c.max);
+        html+=`<div class="field field-final" id="field-${c.id}">
+          <span class="field-name"><label for="in-${c.id}">${esc(c.label)}</label> <span class="weight">${c.weight}%</span></span>
+          <span class="row"><input id="in-${c.id}" type="number" inputmode="decimal" min="0" max="${c.max}" step="${stepFor(c)}" value="${val}" placeholder="${placeholder}" autocomplete="off" aria-describedby="hint-${c.id}"><span class="unit">${esc(c.unit)}</span></span>
+          <div class="slider-row">
+            <span class="bound" aria-hidden="true">0</span>
+            <input id="in-fin-range" type="range" min="0" max="${c.max}" step="${stepFor(c)}" ${cur===null?'':`value="${sliderVal}"`} aria-label="${esc(c.label)} slider" aria-controls="in-${c.id}">
+            <span class="bound" aria-hidden="true">${c.max}</span>
+          </div>
+          <span class="hint" id="hint-${c.id}" hidden></span>
+        </div>`;
+      }else{
+        html+=`<label class="field" for="in-${c.id}">${esc(c.label)} <span class="weight">${c.weight}%</span>
+          <span class="row"><input id="in-${c.id}" type="number" inputmode="decimal" min="0" max="${c.max}" step="${stepFor(c)}" value="${val}" placeholder="${placeholder}" autocomplete="off" aria-describedby="hint-${c.id}"><span class="unit">${esc(c.unit)}</span></span>
+          <span class="hint" id="hint-${c.id}" hidden></span></label>`;
+      }
+    });
+    $('comp-grid').innerHTML=html;
+    C.comps.forEach(c=>{
+      bindScoreInput(c);
+      const n=parseMark(marks[active][c.id]);
+      setHint(c.id, hintFor(c,n));
+      const el=$('in-'+c.id);
+      if(el && hintFor(c,n)) el.setAttribute('aria-invalid','true');
+    });
+    bindExamSlider(finalCompOf(C));
+  }
+
+  // ---------- outputs ----------
+  function renderCourse(){
+    const r=compute(active);
+    const pctEl=$('o-pct'), letterEl=$('o-letter'), gpEl=$('o-gp');
+    const loG=gradeFor(r.minTotal), hiG=gradeFor(r.maxTotal);
+    const incomplete=!r.complete;
+    const sameBand=loG===hiG;
+
+    if(!incomplete){
+      pctEl.textContent=pctText(r.total)+'%';
+      pctEl.classList.remove('range');
+      const idx=cuts.indexOf(loG), next=idx>0?cuts[idx-1]:null;
+      const shown1=Number(fmt(r.total,1));
+      const roundNote = gradeFor(shown1)!==loG ? ` One-decimal rounding would show ${fmt(r.total,1)}%.` : '';
+      $('o-pct-s').textContent=(next?`${ceil2(next.cut-r.total)} pts below ${pretty(next.g)}`:'Top band')+roundNote;
+      letterEl.textContent=pretty(loG.g);
+      letterEl.classList.remove('range');
+      $('o-letter-s').textContent=loG.std+(loG.src==='fitted'?' · estimated band':'');
+      gpEl.textContent=loG.gp.toFixed(1);
+      gpEl.classList.remove('range');
+      $('o-gp-s').textContent='on the 4.0 scale';
+    }else{
+      pctEl.textContent=pctRange(r.minTotal,r.maxTotal);
+      pctEl.classList.add('range');
+      const missText=r.missing.length?missingLabels(r.missing):'a component';
+      $('o-pct-s').textContent=`${missText.charAt(0).toUpperCase()+missText.slice(1)} not entered — range is not a zero fill-in`;
+      if(sameBand){
+        letterEl.textContent=pretty(loG.g);
+        letterEl.classList.remove('range');
+        $('o-letter-s').textContent=loG.std+(loG.src==='fitted'?' · estimated band':'')+' · band holds across the range';
+        gpEl.textContent=loG.gp.toFixed(1);
+        gpEl.classList.remove('range');
+        $('o-gp-s').textContent='on the 4.0 scale';
+      }else{
+        letterEl.textContent=pretty(loG.g)+'–'+pretty(hiG.g);
+        letterEl.classList.add('range');
+        $('o-letter-s').textContent='Depends on '+missText;
+        gpEl.textContent=fmtRange(loG.gp, hiG.gp, 1, '');
+        gpEl.classList.add('range');
+        $('o-gp-s').textContent='on the 4.0 scale';
+      }
+    }
+
+    const agg=[];
+    r.parts.forEach(p=>{
+      const name=p.c.group?'critiques':p.c.label.toLowerCase().replace(' & presentation','');
+      if(p.missing){
+        const ex=agg.find(a=>a.name===name);
+        if(ex){ if(ex.missing) ex.w=(ex.w||0)+p.c.weight; else {/* mix unlikely */} }
+        else agg.push({name, missing:true, w:p.c.weight});
+      }else{
+        const ex=agg.find(a=>a.name===name && !a.missing);
+        if(ex) ex.v+=p.contrib; else agg.push({name, v:p.contrib, missing:false});
+      }
+    });
+    $('o-break').textContent = agg.map(a=>a.missing?`${a.name} not entered (${a.w}%)`:`${fmt(a.v,2)} ${a.name}`).join(' + ') +
+      (r.complete?` = ${pctText(r.total)}%`:` → ${pctText(r.minTotal)}–${pctText(r.maxTotal)}% possible`);
+
+    renderLadder(r);
+    renderNeed(r);
+  }
+
+  function renderLadder(r){
+    const L=$('ladder'); L.innerHTML='';
+    const track=document.createElement('div'); track.className='track';
+    const asc=cuts.slice().reverse();
+    asc.forEach((c,i)=>{
+      const hi=i<asc.length-1?asc[i+1].cut:100;
+      const s=document.createElement('div'); s.className='seg';
+      s.style.width=Math.max(0,hi-c.cut)+'%'; s.style.background=SEG_COLORS[cuts.indexOf(c)]; s.style.opacity=0.45;
+      track.appendChild(s);
+    });
+    L.appendChild(track);
+    asc.forEach((c,i)=>{
+      const hi=i<asc.length-1?asc[i+1].cut:100;
+      if(hi-c.cut>=4){ const lb=document.createElement('span'); lb.className='lbl'; lb.style.left=((c.cut+hi)/2)+'%'; lb.textContent=pretty(c.g); L.appendChild(lb); }
+      if(c.cut>0 && c.cut<100){ const t=document.createElement('span'); t.className='tick'; t.style.left=c.cut+'%'; t.textContent=c.cut; L.appendChild(t); }
+    });
+    if(!r.complete && Math.abs(r.maxTotal-r.minTotal)>0.05){
+      const band=document.createElement('div'); band.className='band';
+      const a=clamp(r.minTotal,0,100), b=clamp(r.maxTotal,0,100);
+      band.style.left=Math.min(a,b)+'%';
+      band.style.width=Math.max(0.6, Math.abs(b-a))+'%';
+      L.appendChild(band);
+      const m1=document.createElement('div'); m1.className='marker'; m1.style.left=a+'%'; L.appendChild(m1);
+      const m2=document.createElement('div'); m2.className='marker'; m2.style.left=b+'%'; L.appendChild(m2);
+    }else{
+      const m=document.createElement('div'); m.className='marker'; m.style.left=clamp(r.minTotal,0,100)+'%'; L.appendChild(m);
+    }
+  }
+
+  function needOnFinal(cut, banked, fw, extraMin, extraMax){
+    const needHi=(cut - banked - extraMin)/fw*100; // worst leftover on unknown pre-finals
+    const needLo=(cut - banked - extraMax)/fw*100; // best leftover
+    return {needLo, needHi};
+  }
+
+  function renderNeed(r){
+    const fw=r.finalComp.weight;
+    const C=COURSES[active];
+    const extraMax=r.missingPre.reduce((s,c)=>s+c.weight,0);
+    const extraMin=0;
+    let intro=`In ${C.name} you have banked ${fmt(r.banked,2)}% out of the ${r.graded}% graded before the final. The final is worth ${fw}%, so each 1% you score on it adds ${fmt(fw/100,2)} to your course score.`;
+    if(r.missingPre.length){
+      const names=missingLabels(r.missingPre);
+      intro=`In ${C.name} you have banked ${fmt(r.banked,2)}% from the ${r.graded}% entered before the final. ${names.charAt(0).toUpperCase()+names.slice(1)} (${extraMax}% of the course) ${r.missingPre.length>1?'are':'is'} not entered, so the finals below are a range: the lower number assumes full credit on the blank work, the higher number assumes 0. Enter ${names} for an exact figure.`;
+    }else if(r.missing.some(c=>c.final)){
+      intro=`In ${C.name} you have banked ${fmt(r.banked,2)}% out of the ${r.graded}% graded before the final. The final is worth ${fw}% and is not entered — figures below are what you would need on it. Each 1% on the final adds ${fmt(fw/100,2)} to your course score.`;
+    }
+    $('need-intro').textContent=intro;
+
+    const point=r.complete?r.total:(r.preComplete && parseMark(marks[active][r.finalComp.id])!==null)?r.minTotal:null;
+    const cur=point!=null?gradeFor(point):null;
+
+    $('need-body').innerHTML = cuts.filter(c=>c.g!=='F').map(c=>{
+      const {needLo, needHi}=needOnFinal(c.cut, r.banked, fw, extraMin, extraMax);
+      let status, cls, show;
+      if(needHi<=EPS){ status='Already secured'; cls='good'; show='—'; }
+      else if(needLo>100+EPS){ show=ceil2(needLo)+'%'; status='Out of reach'; cls='bad'; }
+      else if(r.missingPre.length && Math.abs(needHi-needLo)>0.05){
+        if(needLo<=EPS && needHi<=100+EPS) show='≤ '+ceil2(needHi)+'%';
+        else show=ceil2(Math.max(needLo,0))+'–'+ceil2(needHi)+'%';
+        status='Depends on '+missingLabels(r.missingPre);
+        cls=needLo>100?'bad':needHi>100?'bad':'warn';
+      }else{
+        const need=needHi;
+        show=ceil2(need)+'%';
+        status=need<=60?'Comfortable':need<=85?'Reachable':'Stretch';
+        cls=need<=60?'good':need<=85?'warn':'bad';
+      }
+      const current = cur && c===cur;
+      return `<tr class="${current?'current':''}"><td class="gradecell">${pretty(c.g)}</td><td class="r num">${c.gp.toFixed(1)}</td><td class="r num">${c.cut}%${c.src==='fitted'?'*':''}</td><td class="r num">${show}</td><td><span class="pill ${cls}">${status}</span></td></tr>`;
+    }).join('');
+  }
+
+  function renderCuts(){
+    $('cut-body').innerHTML = cuts.map((c,i)=>`<tr><td class="gradecell">${pretty(c.g)}</td><td>${esc(c.std)}</td><td class="r num">${c.gp.toFixed(1)}</td><td class="r">${c.g==='F'?'<span class="num">below D</span>':`<input class="cut-in" id="cut-${i}" type="number" inputmode="decimal" min="0" max="100" step="1" value="${c.cut}" aria-label="Cutoff for ${esc(c.g)}">`}</td><td>${c.src==='slide'?'<span class="pill src">6112 slide</span>':c.src==='fitted'?'<span class="pill fit">Extrapolated</span>':''}</td></tr>`).join('');
+    cuts.forEach((c,i)=>{const el=$('cut-'+i);if(!el)return;
+      el.addEventListener('input',()=>{const values=cuts.map(c=>c.cut);values[i]=el.value.trim()===''?NaN:Number(el.value);const valid=validCuts(values);el.setAttribute('aria-invalid',String(!valid));el.title=valid?'':'Cutoffs must be finite, between 0 and 100, and strictly descending. Corrected on blur.';if(valid){c.cut=values[i];update();}});
+      el.addEventListener('blur',()=>{el.value=commitCut(i,el.value);el.removeAttribute('aria-invalid');el.title='';update();});
+    });
+  }
+
+  // ---------- overall ----------
+  function otherResult(c){
+    if(c.mode==='exclude') return {excluded:true, complete:true, pct:null, g:null, minG:null, maxG:null};
+    if(c.mode==='letter'){
+      const g=byLetter(c.value);
+      if(!g) return null;
+      return {pct:null, g, minG:g, maxG:g, complete:true, excluded:false};
+    }
+    const raw=parseMark(c.value); if(raw===null) return null;
+    const v=clamp(raw,0,100); // a typed 120 or -5 is capped, so it cannot skew the average score
+    const g=gradeFor(v);
+    return {pct:v, g, minG:g, maxG:g, complete:true, minPct:v, maxPct:v, excluded:false};
+  }
+
+  function linkedResult(k){
+    const r=compute(k);
+    if(r.complete){
+      const g=gradeFor(r.total);
+      return {pct:r.total, g, minG:g, maxG:g, complete:true, minPct:r.total, maxPct:r.total, r};
+    }
+    const minG=gradeFor(r.minTotal), maxG=gradeFor(r.maxTotal);
+    return {pct:null, g:null, minG, maxG, complete:false, minPct:r.minTotal, maxPct:r.maxTotal, r};
+  }
+
+  function renderCourses(){
+    const linkedRows=Object.keys(COURSES).map(k=>({k, res:linkedResult(k)}));
+    const letterOpts = g => cuts.map(c=>`<option value="${esc(c.g)}" ${c.g===g?'selected':''}>${pretty(c.g)} (${c.gp.toFixed(1)})</option>`).join('');
+    let html=linkedRows.map(l=>{
+      const res=l.res;
+      const score=res.complete?`${pctText(res.pct)}%`:pctRange(res.minPct,res.maxPct);
+      const letter=res.complete?pretty(res.g.g):(res.minG===res.maxG?pretty(res.minG.g):pretty(res.minG.g)+'–'+pretty(res.maxG.g));
+      const gp=res.complete?res.g.gp.toFixed(1):fmtRange(res.minG.gp,res.maxG.gp,1,'');
+      const note=res.complete?'Calculator':'Incomplete';
+      return `<tr>
+        <td><strong>${esc(COURSES[l.k].name)}</strong></td>
+        <td class="r"><input id="lu-${l.k}" type="number" inputmode="decimal" min="0" step="1" value="${units[l.k]}" style="width:62px" aria-label="Units for ${esc(COURSES[l.k].name)}"></td>
+        <td><span class="note">${note}</span></td>
+        <td><span class="num">${score}</span></td>
+        <td class="r gradecell">${letter}</td>
+        <td class="r num">${gp}</td><td></td></tr>`;
+    }).join('');
+    html += others.map((c,i)=>{
+      const res=otherResult(c);
+      let scoreCell;
+      if(c.mode==='letter') scoreCell=`<select id="cv-${i}" aria-label="Letter grade">${letterOpts(c.value)}</select>`;
+      else if(c.mode==='exclude') scoreCell=`<select id="cv-${i}" aria-label="Non-GPA grade"><option value="P" ${c.value==='P'?'selected':''}>P (ungraded pass)</option><option value="U" ${c.value==='U'?'selected':''}>U (ungraded fail)</option><option value="DI" ${c.value==='DI'?'selected':''}>DI</option><option value="PA" ${c.value==='PA'?'selected':''}>PA</option><option value="FA" ${c.value==='FA'?'selected':''}>FA</option></select>`;
+      else scoreCell=`<input id="cv-${i}" type="number" inputmode="decimal" min="0" max="100" step="0.1" value="${esc(c.value)}" placeholder="e.g. 82" aria-label="Course percentage">`;
+      const letterShow=c.mode==='exclude'?(c.value||'P'):(res?pretty(res.g.g):'–');
+      const gpShow=c.mode==='exclude'?'—':(res?res.g.gp.toFixed(1):'–');
+      return `<tr>
+        <td style="min-width:150px"><input id="cn-${i}" type="text" value="${esc(c.name)}" aria-label="Course name"></td>
+        <td class="r"><input id="cu-${i}" type="number" inputmode="decimal" min="0" step="1" value="${esc(c.units)}" style="width:62px" aria-label="Units"></td>
+        <td><select id="cm-${i}" aria-label="Entry type"><option value="pct" ${c.mode==='pct'?'selected':''}>Percent</option><option value="letter" ${c.mode==='letter'?'selected':''}>Letter</option><option value="exclude" ${c.mode==='exclude'?'selected':''}>Not in GPA</option></select></td>
+        <td style="min-width:120px">${scoreCell}</td>
+        <td class="r gradecell">${letterShow}</td>
+        <td class="r num">${gpShow}</td>
+        <td class="r"><button class="x" id="cx-${i}" type="button" aria-label="Remove ${esc(c.name)}">Remove</button></td></tr>`;
+    }).join('');
+    $('course-body').innerHTML=html;
+
+    linkedRows.forEach(l=>$('lu-'+l.k).addEventListener('input',e=>{ units[l.k]=parseUnits(e.target.value); save(); renderOverall(); }));
+    others.forEach((c,i)=>{
+      $('cn-'+i).addEventListener('change',e=>{c.name=e.target.value; save();});
+      $('cu-'+i).addEventListener('input',e=>{c.units=parseUnits(e.target.value); save(); renderOverall();});
+      $('cm-'+i).addEventListener('change',e=>{c.mode=e.target.value; c.value=c.mode==='letter'?'B':c.mode==='exclude'?'P':''; save(); renderCourses();});
+      $('cv-'+i).addEventListener('change',e=>{c.value=e.target.value; save(); renderCourses();});
+      $('cx-'+i).addEventListener('click',()=>{others.splice(i,1); save(); renderCourses();});
+    });
+    renderOverall();
+  }
+
+  function letterForGpa(gpa){
+    const exact=cuts.find(c=>Math.abs(c.gp-gpa)<0.005);
+    if(exact) return {letter:pretty(exact.g), sub:exact.std};
+    const lo=cuts.find(c=>c.gp<=gpa);
+    const hi=cuts.slice().reverse().find(c=>c.gp>gpa);
+    if(!lo && hi) return {letter:pretty(hi.g), sub:hi.std};
+    if(lo && !hi) return {letter:pretty(lo.g), sub:lo.std};
+    if(!lo && !hi) return {letter:'–', sub:''};
+    const nearest=(gpa-lo.gp)<(hi.gp-gpa)?lo:hi; // an exact tie rounds up
+    return {letter:pretty(nearest.g), sub:`Between ${pretty(lo.g)} (${lo.gp.toFixed(1)}) and ${pretty(hi.g)} (${hi.gp.toFixed(1)})`};
+  }
+
+  // GPA = unit-weighted average of each course’s grade points, not of average marks.
+  function gpaFromItems(items){
+    let u=0, qMin=0, qMax=0, incomplete=false;
+    let pU=0, pMin=0, pMax=0;
+    for(const it of items){
+      if(!it || it.excluded) continue;
+      const un=parseUnits(it.units);
+      if(un<=0) continue;
+      if(it.complete!==false){
+        if(it.gp==null) continue;
+        u+=un; qMin+=un*it.gp; qMax+=un*it.gp;
+        if(it.pct!=null && Number.isFinite(it.pct)){ pU+=un; pMin+=un*it.pct; pMax+=un*it.pct; }
+      }else{
+        if(it.gpMin==null || it.gpMax==null) continue;
+        u+=un; incomplete=true;
+        qMin+=un*it.gpMin; qMax+=un*it.gpMax;
+        if(it.minPct!=null && it.maxPct!=null){ pU+=un; pMin+=un*it.minPct; pMax+=un*it.maxPct; }
+      }
+    }
+    if(u===0) return {units:0, gpa:null, gpaMin:null, gpaMax:null, incomplete:false, avgMark:null, avgMarkMin:null, avgMarkMax:null, pctUnits:0};
+    return {
+      units:u, gpa:qMin/u, gpaMin:qMin/u, gpaMax:qMax/u, incomplete,
+      avgMark: pU>0?pMin/pU:null, avgMarkMin: pU>0?pMin/pU:null, avgMarkMax: pU>0?pMax/pU:null, pctUnits:pU
+    };
+  }
+
+  function gpaItemsFromState(){
+    const items=[];
+    for(const k in COURSES){
+      const res=linkedResult(k);
+      if(!res) continue;
+      if(res.complete) items.push({units:units[k], complete:true, gp:res.g.gp, pct:res.pct});
+      else items.push({units:units[k], complete:false, gpMin:res.minG.gp, gpMax:res.maxG.gp, minPct:res.minPct, maxPct:res.maxPct});
+    }
+    others.forEach(c=>{
+      const res=otherResult(c);
+      if(!res) return;
+      if(res.excluded) items.push({units:c.units, excluded:true});
+      else if(res.complete) items.push({units:c.units, complete:true, gp:res.g.gp, pct:res.pct!=null?res.pct:null});
+    });
+    return items;
+  }
+
+  function renderOverall(){
+    const out=gpaFromItems(gpaItemsFromState());
+    const gpaEl=$('ov-gpa'), letEl=$('ov-letter'), pctEl=$('ov-pct');
+    if(out.units===0){
+      ['ov-gpa','ov-letter','ov-pct'].forEach(id=>$(id).textContent='–');
+      $('ov-letter-s').textContent=''; $('ov-pct-s').textContent='';
+      [gpaEl,letEl,pctEl].forEach(el=>el.classList.remove('range'));
+      return;
+    }
+    const lo=out.gpaMin, hi=out.gpaMax;
+    const same=fmt(lo,2)===fmt(hi,2);
+    if(!out.incomplete || same){
+      gpaEl.textContent=fmt(lo,2);
+      gpaEl.classList.remove('range');
+      const L=letterForGpa(lo);
+      letEl.textContent=L.letter; letEl.classList.remove('range');
+      $('ov-letter-s').textContent=L.sub;
+    }else{
+      gpaEl.textContent=fmtRange(lo,hi,2,'');
+      gpaEl.classList.add('range');
+      const Lo=letterForGpa(lo), Hi=letterForGpa(hi);
+      if(Lo.letter===Hi.letter){ letEl.textContent=Lo.letter; letEl.classList.remove('range'); $('ov-letter-s').textContent=Lo.sub; }
+      else { letEl.textContent=Lo.letter+'–'+Hi.letter; letEl.classList.add('range'); $('ov-letter-s').textContent=`Between ${Lo.letter} and ${Hi.letter}`; }
+    }
+    if(out.pctUnits>0){
+      const a=out.avgMarkMin, b=out.avgMarkMax;
+      const knownU=out.pctUnits, u=out.units;
+      if(fmt(a,2)===fmt(b,2)){ pctEl.textContent=fmt(a,2)+'%'; pctEl.classList.remove('range'); }
+      else { pctEl.textContent=fmtRange(a,b,2,'%'); pctEl.classList.add('range'); }
+      $('ov-pct-s').textContent = out.incomplete ? 'From the marks entered, including blank-component ranges' : (knownU<u ? `From ${knownU} of ${u} units entered as percentages` : `Across ${u} units`);
+    }else{
+      pctEl.textContent='–'; pctEl.classList.remove('range');
+      $('ov-pct-s').textContent='Enter a course as a percentage to see this';
+    }
+  }
+
+
+  // Both trajectories use the same independent final-exam x axis; coursework is never changed.
+  const COLORS={ipa:'#f2f7ff',afm:'#8fb4ff'};
+  function scenario(k,x){
+    const r=compute(k), unknown=r.missingPre.reduce((a,c)=>a+c.weight,0);
+    const min=r.banked+r.finalComp.weight*x/100, max=min+unknown;
+    return {min,max,gpMin:gradeFor(min).gp,gpMax:gradeFor(max).gp,bankMin:r.banked,bankMax:r.banked+unknown,unknown,fw:r.finalComp.weight};
+  }
+  function effort(k,x){
+    const raw=$('hours-'+k).value, h=Number(raw), p=Number($('effort-power').value);
+    if(raw===''||!Number.isFinite(h)||h<0||h>10000||!Number.isFinite(p)||p<1||p>4||x<0||x>100) return null;
+    return h*Math.pow(x/100,p);
+  }
+  function target(k,cut){
+    const a=scenario(k,0), lo=(cut-a.bankMax)/a.fw*100, hi=(cut-a.bankMin)/a.fw*100;
+    return {lo,hi,secured:hi<=1e-9,impossible:lo>100+1e-9};
+  }
+  const PX=x=>66+x*8.55, PY=p=>410-p*3.6;
+  function stepPoints(k,bank){
+    const fw=scenario(k,0).fw;
+    const bounds=cuts.map(c=>({x:(c.cut-bank)/fw*100,gp:c.gp})).filter(b=>b.x>EPS&&b.x<=100+EPS).map(b=>({x:Math.min(b.x,100),gp:b.gp})).sort((a,b)=>a.x-b.x);
+    let pts=[[0,gradeFor(bank).gp]];
+    for(const b of bounds){pts.push([b.x,pts[pts.length-1][1]]);pts.push([b.x,b.gp]);}
+    pts.push([100,gradeFor(bank+fw).gp]);return pts;
+  }
+  const gpPath=pts=>pts.map((p,i)=>(i?'L':'M')+PX(p[0])+','+PY(p[1]*25)).join(' ');
+
+  const series={ipa:true,afm:true,scores:true};
+  function nextGuide(){
+    const r=compute(active),exam=parseMark(marks[active].fin);
+    if(!r.preComplete||exam===null||!series[active])return null;
+    const current=scenario(active,clamp(exam,0,100)).gpMin;
+    const c=cuts.slice().reverse().find(c=>c.gp>current&&target(active,c.cut).lo<=100+1e-9);
+    return c?{grade:c.g,x:clamp(target(active,c.cut).lo,0,100)}:null;
+  }
+  function drawPlot(){
+    let a='';
+    const text=(x,y,t,color='#8e98a6',anchor='middle')=>`<text x="${x}" y="${y}" fill="${color}" font-size="15" text-anchor="${anchor}">${esc(t)}</text>`;
+    const line=(x1,y1,x2,y2,col,dash='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+    for(let gp=0;gp<=4;gp++){
+      const y=PY(gp*25);a+=line(66,y,921,y,'rgba(255,255,255,.09)');a+=text(46,y+5,String(gp),'#8e98a6','end');
+    }
+    for(let p=0;p<=100;p+=20){a+=text(945,PY(p)+5,String(p),'#8e98a6','start');a+=text(PX(p),443,String(p));}
+    const effortOn=$('show-effort').checked;
+    a+=text(66,24,'Course GP','#eef2f7','start')+text(921,24,effortOn?'Score / normalized effort (%)':'Course score (%)','#eef2f7','end')+text(495,480,'Final exam score (%)');
+    for(const k of Object.keys(COURSES)){
+      if(!series[k])continue;
+      const sc=scenario(k,0),col=COLORS[k],d=scenario(k,100);
+      if(sc.unknown){
+        for(const bank of [sc.bankMin,sc.bankMax])a+=`<path class="gp-line" pathLength="1" d="${gpPath(stepPoints(k,bank))}" fill="none" stroke="${col}" opacity=".6" stroke-width="2.5"/>`;
+        const low=stepPoints(k,sc.bankMin),high=stepPoints(k,sc.bankMax).reverse();
+        a+=`<path class="gp-envelope" d="${gpPath(low)} ${gpPath(high).replace(/^M/,'L')} Z" fill="${col}" opacity=".09"/>`;
+        if(series.scores)a+=`<polygon points="${PX(0)},${PY(sc.min)} ${PX(100)},${PY(d.min)} ${PX(100)},${PY(d.max)} ${PX(0)},${PY(sc.max)}" fill="${col}" opacity=".055"/>`;
+      }else a+=`<path class="gp-line" pathLength="1" d="${gpPath(stepPoints(k,sc.bankMin))}" fill="none" stroke="${col}" stroke-width="3"/>`;
+      if(series.scores)for(const bank of sc.unknown?[sc.bankMin,sc.bankMax]:[sc.bankMin])a+='<g class="score-line">'+line(PX(0),PY(bank),PX(100),PY(bank+sc.fw),col,'2 7')+'</g>';
+    }
+    const guide=nextGuide();
+    if(guide){a+=`<g class="next-guide">${line(PX(guide.x),66,PX(guide.x),410,COLORS[active],'5 7')}${text(clamp(PX(guide.x),170,820),53,COURSES[active].short+' '+pretty(guide.grade)+' at '+ceil2(guide.x)+'%',COLORS[active])}</g>`;}
+    const power=Number($('effort-power').value);
+    if(effortOn&&power>=1&&power<=4){let d='';for(let x=0;x<=100;x++)d+=(x?'L':'M')+PX(x)+','+PY(100*Math.pow(x/100,power));a+=`<path class="effort-line" d="${d}" stroke="#c19aff" stroke-width="2" stroke-dasharray="8 6" fill="none"/>`;}
+    $('plot-content').innerHTML=a;
+    const exam=parseMark(marks[active].fin),v=exam===null?50:clamp(exam,0,100);
+    $('chart-exam').value=v;$('chart-course').value=active;
+    $('chart-exam-label').textContent=COURSES[active].short+' final exam';
+    $('chart-exam-value').textContent=exam===null?'Not entered':fmt(v,2)+'%';
+    $('chart-exam').setAttribute('aria-label',COURSES[active].name+' final exam score');
+    readout(v);
+  }
+  function readout(x){
+    let overlay=`<line class="hover-crosshair" x1="${PX(x)}" y1="66" x2="${PX(x)}" y2="410" stroke="#dce5ee" stroke-dasharray="4 5" opacity=".45"/>`;
+    const cards=Object.keys(COURSES).map(k=>{
+      const q=scenario(k,x),col=COLORS[k];
+      if(series[k]){
+        for(const gp of q.unknown?[q.gpMin,q.gpMax]:[q.gpMin])overlay+=`<circle class="hover-gp" cx="${PX(x)}" cy="${PY(gp*25)}" r="5" fill="#000" stroke="${col}" stroke-width="2"/>`;
+        if(series.scores)for(const score of q.unknown?[q.min,q.max]:[q.min])overlay+=`<circle class="hover-score" cx="${PX(x)}" cy="${PY(score)}" r="3" fill="${col}"/>`;
+      }
+      const h=$('show-effort').checked?effort(k,x):null;
+      return `<div class="impact-metric"><span class="metric-k course-${k}">${COURSES[k].short}</span><strong>${fmtRange(q.gpMin,q.gpMax,2,'')} GP</strong><small>${pctRange(q.min,q.max)} course score</small>${q.unknown?'<small>Blank coursework · bounds</small>':''}${h===null?'':`<small>Illustrative ${fmt(h,2)} h</small>`}</div>`;
+    }).join('');
+    $('plot-hover').innerHTML=overlay;
+    const p=Number($('effort-power').value),show=$('show-effort').checked&&p>=1&&p<=4;
+    $('chart-readout').innerHTML=`<div class="impact-metric"><span class="metric-k">Final exam scenario</span><strong>${fmt(x,2)}%</strong><small>Both courses at this final score</small>${show?`<small style="color:#c19aff">Effort ${fmt(100*Math.pow(x/100,p),2)}% of H</small>`:''}</div>`+cards;
+  }
+  function changeChartExam(x){
+    marks[active].fin=clamp(Number(x.toFixed(2)),0,100);
+    $('in-fin').value=marks[active].fin;$('in-fin-range').value=marks[active].fin;update();
+  }
+  for(const id of ['hours-ipa','hours-afm','effort-power']){
+    $(id).addEventListener('input',()=>{drawPlot();save();});
+    $(id).addEventListener('blur',()=>{restoreEffort({ipa:$('hours-ipa').value,afm:$('hours-afm').value,power:$('effort-power').value});drawPlot();save();});
+  }
+  $('chart-course').addEventListener('change',e=>{active=e.target.value;renderTabs();renderInputs();update();});
+  for(const k of ['ipa','afm','scores'])$('show-'+k).addEventListener('click',()=>{series[k]=!series[k];$('show-'+k).setAttribute('aria-pressed',String(series[k]));drawPlot();});
+  $('show-effort').checked=false;
+  $('show-effort').addEventListener('change',()=>drawPlot());
+  $('chart-exam').addEventListener('input',e=>changeChartExam(Number(e.target.value)));
+  const plot=$('trajectory');let dragging=false;
+  function pointerX(e){
+    // Native inverse screen matrix handles scroll, responsive scale, and preserveAspectRatio letterboxing.
+    if(plot.createSVGPoint&&plot.getScreenCTM){const m=plot.getScreenCTM();if(m){const p=plot.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return clamp((p.matrixTransform(m.inverse()).x-66)/8.55,0,100);}}
+    const b=plot.getBoundingClientRect(),scale=Math.min(b.width/1000,b.height/490),offset=(b.width-1000*scale)/2;
+    return scale>0?clamp(((e.clientX-b.left-offset)/scale-66)/8.55,0,100):0;
+  }
+  plot.addEventListener('pointerdown',e=>{if(e.button!==0)return;dragging=true;if(plot.setPointerCapture)plot.setPointerCapture(e.pointerId);changeChartExam(pointerX(e));});
+  plot.addEventListener('pointermove',e=>{const x=pointerX(e);if(dragging)changeChartExam(x);else readout(x);});
+  plot.addEventListener('pointerup',()=>{dragging=false;});plot.addEventListener('pointercancel',()=>{dragging=false;});
+  plot.addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const v=parseMark(marks[active].fin)??50;changeChartExam(e.key==='Home'?0:e.key==='End'?100:v+(e.key==='ArrowRight'?.5:-.5));}});
+
+  function update(){ renderCourse(); renderCourses();  drawPlot(); save(); }
+
+  $('add-course').addEventListener('click',()=>{ others.push({name:'New course',units:3,mode:'pct',value:''}); save(); renderCourses(); });
+  $('reset-cuts').addEventListener('click',()=>{ cuts.forEach((c,i)=>c.cut=DEFAULT_CUTS[i].cut); renderCuts(); update(); });
+  $('reset-marks').addEventListener('click',()=>{ marks[active]=defaultMarks(active); renderInputs(); update(); });
+
+  renderTabs(); renderInputs(); renderCuts(); update();
+
+  // Test hook for automated DOM/logic checks. Not used by the UI.
+  window.__MSC_GPA__ = {
+    KEY, KEY_OLD, COURSES, DEFAULT_CUTS,
+    getState:()=>({active, marks:JSON.parse(JSON.stringify(marks)), cuts:cuts.map(c=>({...c})), others:JSON.parse(JSON.stringify(others)), units:{...units}, clearedDefaultMidterm}),
+    setActive:k=>{ if(COURSES[k]){ active=k; renderTabs(); renderInputs(); update(); } },
+    setMark:(k,id,v)=>{ marks[k][id]=v; },
+    compute, gradeFor, pretty, fmt, parseMark, parseUnits, save,
+    renderInputs, update, defaultMarks, gpaFromItems, gpaItemsFromState, letterForGpa, otherResult, linkedResult, scenario, target, effort, stepPoints, changeChartExam, validCuts, commitCut, pointerX, readout, nextGuide
+  };
+})();
+</script>
+
+<script>
+// Theme motion: scroll reveal, value flash on change, one-time chart draw. Pure enhancement: content is visible without it.
+(function(){
+  var d=document, calm=matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+  d.querySelectorAll('.scroll').forEach(function(el){ var h=el.closest('section')&&el.closest('section').querySelector('h2'); el.tabIndex=0; el.setAttribute('role','region'); el.setAttribute('aria-label',(h?h.textContent.trim()+' ':'')+'table, scrollable'); });
+  var els=d.querySelectorAll('header,.tabs,.panel'); els.forEach(function(el,i){ el.classList.add('reveal'); el.style.setProperty('--d',Math.min(i,4)); });
+  function show(el){ el.classList.add('in'); }
+  if(calm||!('IntersectionObserver' in window)) els.forEach(show);
+  else{ var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ show(e.target); io.unobserve(e.target); } }); },{threshold:.06});
+    els.forEach(function(el){ io.observe(el); }); setTimeout(function(){ els.forEach(show); },2500); }
+  if(!calm){
+    d.documentElement.classList.add('boot'); setTimeout(function(){ d.documentElement.classList.remove('boot'); },2400);
+    if('MutationObserver' in window){ var mo=new MutationObserver(function(ms){ ms.forEach(function(m){ var t=m.target.nodeType===3?m.target.parentNode:m.target; if(t&&t.classList){ t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); } }); });
+      ['o-pct','o-letter','o-gp','ov-gpa','ov-letter','ov-pct'].forEach(function(id){ var e=d.getElementById(id); if(e) mo.observe(e,{childList:true,characterData:true,subtree:true}); }); }
+  }
 })();
 </script>
 </body>

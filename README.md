@@ -1,24 +1,19 @@
 # CUHK MSc Finance GPA Calculator
 
-A single-file calculator (`index.html`, about 33 KB, no dependencies, no network requests) for CUHK MSc Finance course scores, the final-exam score you need for a target grade, and unit-weighted GPA.
+**Live site:** https://souvik-guha.github.io/CUHKMfinGPA/
 
-**Live site:** https://souvik-guha.github.io/CUHKMfinGPA/ (GitHub Pages serves `main`).
+Single-file calculator (`index.html`) for CUHK MSc Finance course scores, the final-exam score you need, and unit-weighted GPA. Marks stay in your browser.
 
-## How it calculates
+## Math
 
-- **Course score** = Σ (mark ÷ max × weight). A blank component is *unknown*, not zero: the page shows the range from scoring 0 on it to full credit. A typed `0` is a real zero.
-- **Needed final** = (cutoff − banked) ÷ final weight, and it **rounds up**, so the number shown always reaches the grade (69.5238% is shown as 69.53%).
-- **Displayed scores** never cross a cutoff by rounding (79.9965 shows as 79.99, not 80.00). Comparisons tolerate 1e-9 of floating-point noise only.
-- **Chart**: the grade for every possible final score. Step positions are computed from the cutoffs, not sampled, and sit at exactly the scores in the table. Shaded area = range while coursework is unentered.
-- **Overall GPA** = Σ(units × grade point) ÷ Σ units over included courses. Courses with no marks, blank percentages, 0 units and P/U/DI/PA/FA are left out. F counts as 0.0.
-- **Cutoffs**: A through C+ come from the IPA 6112 slide. C and below are estimates that continue the 10-point step; edit them in the page if a course publishes its own. The grade-point scale is the official 4.0 scale.
+- Course score = Σ mark ÷ max × weight. A blank component is unknown, not zero, so you see a range.
+- Needed-final and "points below" figures round **up** (the number shown always suffices). Shown scores never cross a cutoff by rounding. GPA and averages round half up.
+- Typed percentages for other courses are capped to 0–100 before averaging. Inputs accept any score; nothing is snapped to a grid.
 
-Marks are kept in `localStorage` (`cuhk-gpa-v4`) and never leave the browser. A fresh visit is blank.
+## Audit
 
-## Checks
+`audit/audit.mjs` drives the real page and checks every printed score, letter, needed score, chart step and GPA against an exact BigInt-fraction oracle (`audit/oracle.mjs`), including marks that land on or within 1e-4 of cutoffs. `audit/snapshot.mjs` hashes the UI over 700 seeded states so a refactor can be proven output-identical.
 
 ```bash
-npm ci && npm test
+CHROME_PATH=/path/to/chrome node audit/audit.mjs "$PWD/index.html" 1   # run `npm ci` first (puppeteer-core)
 ```
-
-Tests drive the page in Chrome or Chromium (`CHROME_PATH` or `CHROME_BIN` to point at it): cutoff boundaries and rounding, blank vs zero, needed-score rounding, GPA weighting, saved state, chart click/keys/step positions, cutoff validation, phone layout.
