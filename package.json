@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node audit/audit.mjs \"$PWD/index.html\" 1"
   },
   "devDependencies": {
     "puppeteer-core": "^25.17.0"

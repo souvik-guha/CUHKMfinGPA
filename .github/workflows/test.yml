@@ -18,6 +18,10 @@ jobs:
           node-version: "22"
           cache: npm
       - name: Install Chrome
+        id: chrome
         uses: browser-actions/setup-chrome@v1
       - run: npm ci
-      - run: npm test
+      - name: Exact-arithmetic audit
+        run: npm test
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
